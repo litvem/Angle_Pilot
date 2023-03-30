@@ -1,5 +1,5 @@
 #include "PrimeChecker.hpp"
-
+//ossian was here
 bool PrimeChecker::isPrime(uint16_t n)
 {
     if (n < 2 || n % 2 == 0)

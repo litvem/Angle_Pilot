@@ -8,6 +8,7 @@
 // wooooza
 // hey hey
 // hey again
+// comment
 bool PrimeChecker::isPrime(uint16_t n)
 {
     if (n < 2 || n % 2 == 0)

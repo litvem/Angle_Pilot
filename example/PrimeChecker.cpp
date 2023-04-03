@@ -1,8 +1,7 @@
 
 #include "PrimeChecker.hpp"
 // more comments:w
-// new comment fpr ci/cd
-//comment for ci/cd
+// new comment fpr ci/cd:
 // wooooza
 // hey again
 bool PrimeChecker::isPrime(uint16_t n)

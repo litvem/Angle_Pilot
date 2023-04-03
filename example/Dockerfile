@@ -3,7 +3,7 @@
 FROM ubuntu:22.04 as builder
 MAINTAINER Christian Berger christian.berger@gu.se
 
-RUN apt-get update -y && \
+RUN aaapt-get update -y && \
     apt-get upgrade -y && \
     apt-get dist-upgrade -y
 

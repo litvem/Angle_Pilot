@@ -4,7 +4,8 @@
 // new comment fpr ci/cd
 //comment for ci/cd
 //ossian was here
-// Yet another comment
+// Yet another commen
+// wooooza
 bool PrimeChecker::isPrime(uint16_t n)
 {
     if (n < 2 || n % 2 == 0)

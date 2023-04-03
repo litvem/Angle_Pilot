@@ -6,7 +6,6 @@
 //ossian was here
 // Yet another commen
 // wooooza
-// hey hey
 // hey again
 bool PrimeChecker::isPrime(uint16_t n)
 {

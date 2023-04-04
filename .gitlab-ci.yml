@@ -45,7 +45,7 @@ build-and-test:
     - when: always  
   script:
     - docker info
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+   # - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - cd example
     - docker build -f Dockerfile .
 
@@ -57,10 +57,10 @@ release:
   stage: deploy
   script:
     - echo "before login"
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - cd example
     - echo "'$CI_REGISTRY_IMAGE'"
     - echo "'$CI_COMMIT_TAG'"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -f Dockerfile -t "$CI_REGISTRY_IMAGE":"$CI_COMMIT_TAG" .
     - docker push "$CI_REGISTRY_IMAGE":"$CI_COMMIT_TAG"
   rules:

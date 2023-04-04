@@ -37,7 +37,7 @@ before_script:
 # comment
 build-and-test:
   tags:
-    - docker build 
+    - docker-build 
   stage: build
   script:
     - cd example

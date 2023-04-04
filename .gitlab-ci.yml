@@ -46,6 +46,7 @@ build-and-test:
 release:
   tags:
     - docker-build
+    - docker
   stage: deploy
   #image: registry.gitlab.com/gitlab-org/release-cli:latest
   script:

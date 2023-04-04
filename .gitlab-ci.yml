@@ -42,6 +42,7 @@ build-and-test:
   rules:
     - if: $CI_COMMIT_TAG
       when: never
+    - when: always  
   script:
     - cd example
     - docker build -f Dockerfile .

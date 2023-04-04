@@ -45,10 +45,10 @@ build-and-test:
 
 # This section describes what shall be done to deploy artefacts from the project.
 release:
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
   tags:
     - docker-build
   stage: deploy
-  #image: registry.gitlab.com/gitlab-org/release-cli:latest
   script:
    # - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - cd example

@@ -51,7 +51,7 @@ build-and-test:
 
 # This section describes what shall be done to deploy artefacts from the project.
 release:
-  #image: registry.gitlab.com/gitlab-org/release-cli:latest
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
   image: docker:19.03.3
   tags:
     - docker-build

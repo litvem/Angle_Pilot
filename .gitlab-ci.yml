@@ -29,9 +29,9 @@ stages:
   - deploy
 
 # Display information before we start the build.
-before_script:
-  - docker info
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#before_script:
+ # - docker info
+  #- docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 # This section describes what shall be done to build and test the project.
 # comment
@@ -44,24 +44,29 @@ build-and-test:
       when: never
     - when: always  
   script:
+    - docker info
+   # - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - cd example
     - docker build -f Dockerfile .
 
 # This section describes what shall be done to deploy artefacts from the project.
 release:
+  stage: deploy
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   tags:
     - docker-build
-  stage: deploy
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "Installing Docker"
+    - apk add --update docker
+    - echo "before login"
     - cd example
     - echo "'$CI_REGISTRY_IMAGE'"
     - echo "'$CI_COMMIT_TAG'"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -f Dockerfile -t "$CI_REGISTRY_IMAGE":"$CI_COMMIT_TAG" .
     - docker push "$CI_REGISTRY_IMAGE":"$CI_COMMIT_TAG"
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
   release:
     tag_name: "$CI_COMMIT_TAG"
     description: "Current release"  

@@ -41,10 +41,16 @@
     - review meeting minutes
     - prepare missing meeting report with updates on progress of assigned task and encountered issues that will be reviewed by the rest of the team
 
-## Conflict resolution
-- Each team member is welcome to present their opinion in front of the group in calm and professional manner
-- The team will discuss and review all sides of conflict before making a decision on the problem
-- Final decision to be made by majority
+## Conflict management
+- <ins> Conflict prevention</ins>
+  - Each team member should follow the rule “listen first, talk second” in order to understand the points of view of other team members rather than create assumptions and originate conflicts
+  - Each team member is encouraged to collaborate with others and bring his/her knowledge and experience to the group work to fill in the gaps and complement each other
+  - Each team member is advised to show patience to others and be quick to forgive and forget rather that lashing out over made mistakes
+  - All team members are advised against gossiping since it breaks down team spirit and creates conflicts
+- <ins> Conflict resolution</ins>
+  - Each team member is welcome to present their opinion in front of the group in calm and professional manner
+  - The team will discuss and review all sides of conflict before making a decision on the problem
+  - Final decision to be made by majority
 
 ## Emergency
 - In case if unforeseen circumstances occur, each team member is responsible to inform the other team members about the emergency ASAP (maximum within 12 hours) using Discord group channel

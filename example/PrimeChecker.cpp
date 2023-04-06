@@ -1,5 +1,8 @@
+
 #include "PrimeChecker.hpp"
-//ossian was here
+// wooooza
+//gege
+// hey again
 bool PrimeChecker::isPrime(uint16_t n)
 {
     if (n < 2 || n % 2 == 0)

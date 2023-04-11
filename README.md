@@ -1,6 +1,10 @@
 # DIT639 Cyber Physical Systems and Systems of Systems
 ## Group 13
-------
+
+[![pipeline status](https://git.chalmers.se/courses/dit638/students/2023-group-13/badges/main/pipeline.svg)](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/commits/main)
+[![coverage report](https://git.chalmers.se/courses/dit638/students/2023-group-13/badges/main/coverage.svg)](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/commits/main)
+[![Latest Release](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/badges/release.svg)](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/releases)
+
 [Team Code of Conduct](./code-of-conduct.md)
 
 ## Local repository setup

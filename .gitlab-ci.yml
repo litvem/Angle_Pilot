@@ -63,8 +63,9 @@ code-coverage:
     - apt-get install -y cmake && build-essential
     - mkdir build && cd build
     - cmake .. && make && make test
+    - ./helloworld.cpp
     - lcov --capture --directory . --output-file coverage.info
-    - lcov --remove coverage.info '/usr/*' --output-file coverage.info
+    - lcov --remove coverage.info '/usr/*' '*.hpp' --output-file coverage.info
     - lcov --list coverage.info
     - genhtml coverage.info --output-directory coverage-report
     - gcovr --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root ${CI_PROJECT_DIR}/example

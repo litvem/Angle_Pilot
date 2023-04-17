@@ -60,8 +60,7 @@ code-coverage:
   script:
     - cd example
     - apt-get update -y && apt-get upgrade -y && apt-get dist-upgrade -y
-    - apt-get install -y cmake
-    - apt-get install -y build-essential && apt-get -y install lcov
+    - apt-get install -y cmake && apt-get install -y build-essential && apt-get -y install lcov && apt-get install -y gcovr
     - mkdir build && cd build
     - cmake .. && make && make test
     - ./helloworld

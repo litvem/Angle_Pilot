@@ -3,7 +3,7 @@ project(helloworld)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage -fprofile-arcs -ftest-coverage")
 set(CMAKE_EXE_LINKER_FLAGS "--coverage")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+set(COVERAGE_REPORT_DIR "${CMAKE_BINARY_DIR}/coverage_result")
 
 
 

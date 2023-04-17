@@ -53,7 +53,7 @@ build-and-test:
 
 
 code-coverage:
-  image: ubuntu-18.04
+  image: ubuntu:18.04
   stage: generate-coverage
   tags:
     - docker-build

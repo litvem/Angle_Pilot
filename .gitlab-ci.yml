@@ -50,8 +50,6 @@ build-and-test:
     - cd example
     - docker build -f Dockerfile .
 
-
-
 code-coverage:
   image: ubuntu:18.04
   stage: generate-coverage
@@ -63,7 +61,7 @@ code-coverage:
     - apt-get install -y cmake && apt-get install -y build-essential && apt-get -y install lcov && apt-get install -y gcovr
     - mkdir build && cd build
     - cmake .. && make && make test
-    - gcov ./helloworld
+    - ./helloworld
     - lcov --capture --directory . --output-file coverage.info
     - lcov --remove coverage.info '/usr/*' '*.hpp' --output-file coverage.info
     - lcov --list coverage.info
@@ -73,12 +71,13 @@ code-coverage:
   artifacts:
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
     expire_in: 50 days
+    # Here we specify what should be included in the artifact
     paths:
       - ${CI_PROJECT_DIR}/example/build/coverage_result
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: ${CI_PROJECT_DIR}/example/build/coverage.xml
+        path: ${CI_PROJECT_DIR}/example/build/coverage_result
 
 
 # This section describes what shall be done to deploy artefacts from the project.

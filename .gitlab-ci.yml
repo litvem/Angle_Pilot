@@ -74,7 +74,7 @@ code-coverage:
     name: ${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}-${CI_COMMIT_SHA}
     expire_in: 50 days
     paths:
-      - ${CI_PROJECT_DIR}/example/builds/coverage_result
+      - ${CI_PROJECT_DIR}/example/build/coverage_result
     reports:
       coverage_report:
         coverage_format: cobertura

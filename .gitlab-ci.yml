@@ -77,7 +77,7 @@ code-coverage:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: ${CI_PROJECT_DIR}/example/build/coverage_result
+        path: ${CI_PROJECT_DIR}/example/build/coverage_result/coverage.xml
 
 
 # This section describes what shall be done to deploy artefacts from the project.

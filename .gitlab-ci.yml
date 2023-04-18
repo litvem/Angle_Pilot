@@ -63,7 +63,7 @@ code-coverage:
     - apt-get install -y cmake && apt-get install -y build-essential && apt-get -y install lcov && apt-get install -y gcovr
     - mkdir build && cd build
     - cmake .. && make && make test
-    #- ../helloworld.cpp
+    - ./helloworld
     - lcov --capture --directory . --output-file coverage.info
     - lcov --remove coverage.info '/usr/*' '*.hpp' --output-file coverage.info
     - lcov --list coverage.info

@@ -48,7 +48,7 @@ build-and-test:
     - docker info
    # - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - cd example
-    - docker build -f Dockerfile .
+    - docker build --format=docker -f Dockerfile .
 
 code-coverage:
   image: ubuntu:18.04

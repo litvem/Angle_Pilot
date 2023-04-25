@@ -64,6 +64,7 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/cluon-msc
     COMMAND ${CMAKE_CXX_COMPILER} -o ${CMAKE_BINARY_DIR}/cluon-msc ${CMAKE_BINARY_DIR}/cluon-complete.cpp -std=c++14 -pthread -D HAVE_CLUON_MSC
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/cone-detection/${CLUON_COMPLETE})
 
+
 ################################################################################
 # Generate opendlv-standard-message-set.hpp from ${OPENDLV_STANDARD_MESSAGE_SET} file.
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp
@@ -73,6 +74,7 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp
 # Add current build directory as include directory as it contains generated files.
 include_directories(SYSTEM ${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/cone-detection)
+
 
 ################################################################################
 # Gather all object code first to avoid double compilation.

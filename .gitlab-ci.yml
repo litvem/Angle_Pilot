@@ -23,7 +23,6 @@ variables:
   DOCKER_CLI_EXPERIMENTAL: enabled
   BUILDX_URL: https://github.com/docker/buildx/releases/download/v0.7.1/buildx-v0.7.1.linux-amd64
   BUILDX_PLATFORM: linux/amd64,linux/arm/v7
-  DOCKER_DRIVER: overlay2
 
 services:
  - name: docker:20.10.14-dind

@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Which Docker image shall be used on the GitLab runner?
-image: docker:latest
+image: docker:20.10.14
 
 # Details about how to connect to the Docker service to run this build.
 variables:
@@ -26,7 +26,7 @@ variables:
   BUILDX_PLATFORM: linux/amd64,linux/arm/v7
 
 services:
- - name: docker:latest-dind
+ - name: docker:20.10.14-dind
 
 stages:
   - build

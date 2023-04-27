@@ -56,17 +56,40 @@ namespace pos_api {
 
     /**
      * A struct representing a timestamp.
-     * The timestamp consists of the unix
+     * The timestamp consists of the UNIX
      * timestanp (seconds) and the microseconds
-     * elapsed since the unix timestamp (micros).
+     * elapsed since the UNIX timestamp (micros).
      * 
-     * @param seconds a unix timestamp
+     * @param seconds a UNIX timestamp
      * @param micros the amount of microseconds
-     * elapsed since the unix timestamp
+     * elapsed since the UNIX timestamp
      */
     struct timestamp_t {
         uint32_t seconds;
         uint32_t micros;
+    };
+
+    /**
+     * The struct used for transferring data
+     * regarding cone positions, between
+     * microservices. It consists of multiple
+     * cones and timestamps.
+     * 
+     * @param lClose the closest left hand cone
+     * @param lFar the second closest left hand cone
+     * @param rClose the closest right hand cone
+     * @param rFar the second closest right hand cone
+     * @param now the current UNIX timestamp
+     * @param vidTimestamp the timestamp used in
+     * the .rec file
+     */
+    struct data_t {
+        cone_t lClose;
+        cone_t lFar;
+        cone_t rClose;
+        cone_t rFar;
+        timestamp_t now;
+        timestamp_t vidTimestamp;
     };
 } // !pos_api
 

@@ -53,6 +53,21 @@ namespace pos_api {
         uint16_t posX;
         uint16_t posY;
     };
-} // !pos
+
+    /**
+     * A struct representing a timestamp.
+     * The timestamp consists of the unix
+     * timestanp (seconds) and the microseconds
+     * elapsed since the unix timestamp (micros).
+     * 
+     * @param seconds a unix timestamp
+     * @param micros the amount of microseconds
+     * elapsed since the unix timestamp
+     */
+    struct timestamp_t {
+        uint32_t seconds;
+        uint32_t micros;
+    };
+} // !pos_api
 
 #endif // !DIT639_2023_GROUP_13_POSITION_HPP

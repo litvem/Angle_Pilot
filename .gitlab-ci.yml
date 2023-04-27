@@ -98,6 +98,7 @@ release:
   tags:
     - docker-build
   script:
+    - apk add --update docker
     - mkdir -p $HOME/.docker/cli-plugins/
     - wget -O $HOME/.docker/cli-plugins/docker-buildx $BUILDX_URL
     - chmod a+x $HOME/.docker/cli-plugins/docker-buildx

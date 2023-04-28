@@ -61,8 +61,8 @@ namespace pos_api {
      * @param posY the y coordinate of a cone
      */
     struct cone_t {
-        uint16_t posX;
-        uint16_t posY;
+        const uint16_t posX;
+        const uint16_t posY;
     };
 
     /**
@@ -76,8 +76,8 @@ namespace pos_api {
      * elapsed since the UNIX timestamp
      */
     struct timestamp_t {
-        uint32_t seconds;
-        uint32_t micros;
+        const uint32_t seconds;
+        const uint32_t micros;
     };
 
     /**
@@ -95,12 +95,12 @@ namespace pos_api {
      * the .rec file
      */
     struct data_t {
-        cone_t lClose;
-        cone_t lFar;
-        cone_t rClose;
-        cone_t rFar;
-        timestamp_t now;
-        timestamp_t vidTimestamp;
+        const cone_t lClose;
+        const cone_t lFar;
+        const cone_t rClose;
+        const cone_t rFar;
+        const timestamp_t now;
+        const timestamp_t vidTimestamp;
     };
 } // !pos_api
 

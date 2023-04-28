@@ -33,8 +33,19 @@
  * microservices in this project.
  * 
  * The API includes:
- * - cone_t: a struct for holding positional
- *           information of cones
+ * - cone_t:       a struct for holding positional
+ *                 information of cones
+ * 
+ * - timestamp_t:  a struct representing a UNIX
+ *                 timestamp, consisting of the 
+ *                 seconds passed since epoch and
+ *                 the amount of mictoseconds since
+ *                 the last full second
+ * 
+ * - data_t:       a struct representing the full
+ *                 package that is written to the
+ *                 shared memory. It contains four
+ *                 (4) cones and two (2) timestamps
  * 
  * Author: Bao Quan Lindgren (2023)
  */

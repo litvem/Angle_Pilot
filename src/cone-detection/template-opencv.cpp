@@ -408,11 +408,10 @@ int32_t main(int32_t argc, char **argv) {
                  }
 
                 namedWindow("Blue", CV_WINDOW_AUTOSIZE);
-                moveWindow("Blue", 500, 500);
+                moveWindow("Blue", 500, 500);               // make the windows appear at a fixed place on the screen when program runs
                 imshow("Blue", imgContours_blue);
                 namedWindow("Yellow", CV_WINDOW_AUTOSIZE);
-                 moveWindow("Yellow", 500, 650);
-
+                moveWindow("Yellow", 500, 650);
                 imshow("Yellow", imgContours_yellow);
 
             

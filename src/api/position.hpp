@@ -28,6 +28,9 @@
 // Include the standard int types of C
 #include <cstdint>
 
+// Include cluon to create a wrapper for the shared memory
+#include "../cluon-complete-v0.0.127.hpp"
+
 /*
  * The API used to transfer cone data between
  * microservices in this project.
@@ -46,6 +49,21 @@
  *                 package that is written to the
  *                 shared memory. It contains four
  *                 (4) cones and two (2) timestamps
+ * 
+ * - APIException: a collection of enumerations that
+ *                 represent exceptions related to
+ *                 the API
+ * 
+ * - create:       a function that initiates the API
+ * 
+ * - attach:       a function that attaches to an
+ *                 existing API
+ * 
+ * - clear:        a function that cleans up the API
+ * 
+ * - put:          puts data into the shared memory
+ * 
+ * - get:          reads data from the shared memory
  * 
  * Author: Bao Quan Lindgren (2023)
  */
@@ -68,7 +86,7 @@ namespace pos_api {
     /**
      * A struct representing a timestamp.
      * The timestamp consists of the UNIX
-     * timestanp (seconds) and the microseconds
+     * timestamp (seconds) and the microseconds
      * elapsed since the UNIX timestamp (micros).
      * 
      * @param seconds a UNIX timestamp
@@ -102,6 +120,74 @@ namespace pos_api {
         const timestamp_t now;
         const timestamp_t vidTimestamp;
     };
+
+    /*
+     * Exception enumerations tied to the API
+     */
+    enum APIException {
+        /*
+         * An exception that is thrown when trying to
+         * create/attach when the API has already been
+         * instantiated
+         */
+        CREATED,
+
+        /*
+         * An exception that is thrown when a consumer
+         * tries to put data into the shared memory
+         */
+        IS_CONSUMER,
+
+        /*
+         * An exception that is thrown when trying to
+         * put/get when no API has been instantiated
+         */
+        EMPTY
+    };
+
+    /**
+     * Instantiates a shared memory region to act as
+     * an API for communication regarding cone position
+     * 
+     * Only 1 producer can be created at any given time
+     * 
+     * @throws APIException::CREATED if an API has already
+     * been instansiated
+     */
+    void create();
+
+    /**
+     * Attaches to a shared memory region for communication
+     * regarding cone position
+     * 
+     * @throws APIException::CREATED if an API has already
+     * been instansiated
+     * @throws APIException::EMPTY if the is no API to
+     * attach to
+     */
+    void attach();
+
+    /**
+     * Cleans up after the API by destroying the shared
+     * memory and freeing the memory used for the shared
+     * memory
+     */
+    void clear();
+
+    /**
+     * Writes data to the shared memory for consumers to read
+     * 
+     * @param data the data to write into the shared memory
+     */
+    void put(data_t data);
+
+    /**
+     * Reads data from the shared memory that a producer has
+     * written
+     * 
+     * @returns the cone data from a producer
+     */
+    data_t get();
 } // !pos_api
 
 #endif // !DIT639_2023_GROUP_13_POSITION_HPP

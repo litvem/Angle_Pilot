@@ -69,6 +69,10 @@
  */
 namespace pos_api {
 
+    // Constant used in place of cone_t.posX and cone_t.posY
+    // when no cone position is available
+    const uint16_t NO_CONE_POS = UINT16_MAX;
+
     /**
      * A struct holding positional information
      * of cones. It is only intended to be
@@ -188,6 +192,6 @@ namespace pos_api {
      * @returns the cone data from a producer
      */
     data_t get();
-} // !pos_api
+} // !namespace pos_api
 
 #endif // !DIT639_2023_GROUP_13_POSITION_HPP

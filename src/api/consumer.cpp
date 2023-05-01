@@ -15,13 +15,14 @@ void handleExit(int sig);
 // Main entry point
 int32_t main(int32_t argc, char **argv)
 {
+    // Attach an exit handler to the ^C event
     signal(SIGINT, handleExit);
 
     try
     {
         pos_api::attach();
     }
-    catch(const pos_api::APIException& e)
+    catch (const pos_api::APIException& e)
     {
         switch (e)
         {

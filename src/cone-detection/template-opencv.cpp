@@ -207,10 +207,10 @@ int32_t main(int32_t argc, char **argv) {
                  * comparing the masks to original images. We are using bitwise_and operation on the same images (imgHSV). However, we are including
                  * the blue and yellow mask, this means that only the pixels that are set to white in the blue or yellow mask will be evaluated in the coprresponding pixels of the 
                  * imgHSv by the bitwise_and operation, the rest of the pixels in the result will automatically be set to black.
-                 * Mat result_blue, result_yellow;
                  */
-                 cv::bitwise_and(imgHSV, imgHSV, result_blue, blue_mask);
-                 cv::bitwise_and(imgHSV, imgHSV, result_yellow, yellow_mask);
+                Mat result_blue, result_yellow; 
+                cv::bitwise_and(imgHSV, imgHSV, result_blue, blue_mask);
+                cv::bitwise_and(imgHSV, imgHSV, result_yellow, yellow_mask);
             
                 
                 // create gray versions of the masked images

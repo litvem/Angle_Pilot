@@ -176,7 +176,7 @@ int32_t main(int32_t argc, char **argv) {
             
 
                 
-              // Crop original image
+                // Crop original image
                 img = img(Range(290, 410), Range(0, 640));
             
                 // convert image to HSV format
@@ -190,13 +190,15 @@ int32_t main(int32_t argc, char **argv) {
                 cv::Scalar lower_yellow = cv::Scalar(15, 100, 120);
                 cv::Scalar upper_yellow = cv::Scalar(35, 243, 255);
 
-                // filter by blue
-                // resulting blue_mask will have 1's where the pixels fall in the range of lower_blue and upper_blue, and 0 where they don't
-                // meaning the pixels will be white there, and black outside the range
+                /**
+                 * Filter by blue
+                 * resulting blue_mask will have 1's where the pixels fall in the range of lower_blue and upper_blue, and 0 where they don't
+                 * meaning the pixels will be white there, and black outside the range
+                 */
                 cv::Mat blue_mask;
                 cv::inRange(imgHSV, lower_blue, upper_blue, blue_mask);
 
-                // filter by yellow
+                // filter by yellow, same procedure as for blue
                 cv::Mat yellow_mask;
                 cv::inRange(imgHSV, lower_yellow, upper_yellow, yellow_mask);
 
@@ -249,8 +251,8 @@ int32_t main(int32_t argc, char **argv) {
             /** 
              * The Canny method will find edges in an image using the Canny algorithm. It marks the edges and saves them in the gray masks Mat. 
              * The thresholds are used for determining which edges to detect. 
-             * High threshold is used to identify "strong" edges in the image. Any edge with an intensity gradient magnitude above the threshold will be kept.
-             * Low threshold is used to identify weak edges, any edges with an intensity gradient magnitude below loThresh will be discarded.
+             * @param highThresh is used to identify "strong" edges in the image. Any edge with an intensity gradient magnitude above the threshold will be kept.
+             * @param lowThresh  is used to identify weak edges, any edges with an intensity gradient magnitude below loThresh will be discarded.
              * Edges between low and high: any edge pixel that is connected to a strong edge pixel is also considered a strong edge pixel and is retained. 
              */
                Canny(result_blue_gray, result_blue_gray, lowThresh, hiThresh);
@@ -284,6 +286,7 @@ int32_t main(int32_t argc, char **argv) {
              * By combining these two with the same structuring element the closing operation can remove small holes or gaps in the image while 
              * preserving the overall shape of the objects. 
              * @param MORPH_CLOSE specifies that we want to do that kind of operation (i.e close the gaps) on the contours. 
+             * @param kernel the structuring element to be used
              */
                morphologyEx(result_blue_gray, result_blue_gray, MORPH_CLOSE, kernel);
                morphologyEx(result_yellow_gray, result_yellow_gray, MORPH_CLOSE, kernel);

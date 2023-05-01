@@ -10,7 +10,5 @@ build/
 # VS Code stuff
 .vscode/
 
-
 # Compiled files
 build/
-export

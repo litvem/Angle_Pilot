@@ -131,6 +131,8 @@ int32_t main(int32_t argc, char **argv) {
             bool clockwise = true;     // to check if we are going clockwise or not
             int hiThresh = 100;        // for threshold method 
             int lowThresh = 50;        // for threshold method  
+            int threshValue = 120;     // the threshold value for the threshold() method 
+            int maxValue = 255;        // max value for the threshold() method 
 
             od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
 
@@ -173,7 +175,8 @@ int32_t main(int32_t argc, char **argv) {
                 sharedMemory->unlock();
             
 
-                // 
+                
+              // Crop original image
                 img = img(Range(290, 410), Range(0, 640));
             
                 // convert image to HSV format
@@ -197,32 +200,21 @@ int32_t main(int32_t argc, char **argv) {
                 cv::Mat yellow_mask;
                 cv::inRange(imgHSV, lower_yellow, upper_yellow, yellow_mask);
 
-                // comparing mask to original images. We are using bitwise_and operation on the same images (imgHSV). However, we are including
-                // the merged_mask, this means that only the pixels that are set to white in the merged_mask will be evaluated in the coprresponding pixels of the 
-                // imgHSv by the bitwise_and operation, the rest of the pixels in the result will automatically be set to black.
-                // cv::Mat result;
-                // cv::bitwise_and(imgHSV, imgHSV, result, merged_mask);
 
-
-                // comparing the masks to original images. We are using bitwise_and operation on the same images (imgHSV). However, we are including
-                // the blue and yellow mask, this means that only the pixels that are set to white in the blue or yellow mask will be evaluated in the coprresponding pixels of the 
-                // imgHSv by the bitwise_and operation, the rest of the pixels in the result will automatically be set to black.
-                Mat result_blue, result_yellow;
-                cv::bitwise_and(imgHSV, imgHSV, result_blue, blue_mask);
-                cv::bitwise_and(imgHSV, imgHSV, result_yellow, yellow_mask);
-
-             // Declare images to be used
-                cv::Mat imgDirection;
-
-              // Crop original image
+                /**
+                 * comparing the masks to original images. We are using bitwise_and operation on the same images (imgHSV). However, we are including
+                 * the blue and yellow mask, this means that only the pixels that are set to white in the blue or yellow mask will be evaluated in the coprresponding pixels of the 
+                 * imgHSv by the bitwise_and operation, the rest of the pixels in the result will automatically be set to black.
+                 * Mat result_blue, result_yellow;
+                 */
+                 cv::bitwise_and(imgHSV, imgHSV, result_blue, blue_mask);
+                 cv::bitwise_and(imgHSV, imgHSV, result_yellow, yellow_mask);
+            
                 
-
-            // *************************************************************************************
-
-            // create gray versions of the masked images
-               Mat result_blue_gray, result_yellow_gray;
-               cvtColor(result_blue, result_blue_gray, cv::COLOR_BGR2GRAY);
-               cvtColor(result_yellow, result_yellow_gray, cv::COLOR_BGR2GRAY);
+                // create gray versions of the masked images
+                Mat result_blue_gray, result_yellow_gray;
+                cvtColor(result_blue, result_blue_gray, cv::COLOR_BGR2GRAY);
+                cvtColor(result_yellow, result_yellow_gray, cv::COLOR_BGR2GRAY);
 
 
                 
@@ -232,6 +224,7 @@ int32_t main(int32_t argc, char **argv) {
              * of the yellow mask image and count the number of pixels found there that are not black. If the count is > 0 it means a yellow cone
              * has been  detected i.e. we are going counter clockwise 
              */
+                cv::Mat imgDirection;
                 frameCount++;
                 std::cout << "Frame count: " << frameCount << std::endl; 
 
@@ -244,7 +237,7 @@ int32_t main(int32_t argc, char **argv) {
                 }
                 std::cout << "Clockwise: " << clockwise << std::endl;
                 namedWindow("Direction", CV_WINDOW_AUTOSIZE);
-                moveWindow("Direction", 700, 1050);
+               // moveWindow("Direction", 700, 1050);
                 imshow("Direction", imgDirection);
 
                // Crop images 
@@ -264,12 +257,14 @@ int32_t main(int32_t argc, char **argv) {
                Canny(result_yellow_gray, result_yellow_gray, lowThresh, hiThresh);
 
             /** 
-             * Threshold the images, basically makes all the pixels either black or white
-             * THRESH_BINARY means that each pixel is compared to the threshold value (120) and if it is larger, then it will be set to 255 == white. 
-             * if it is lower it will be set to 0 == black. 
+             * Threshold the images, it means that each pixel is compared to the threshold value (120) and if it is larger, then it will be set to 255 == white,
+             * if it is lower it will be set to 0 == black. This is to remove noise from the images. It removes low-intensity pixels and preserves high-intensity pixels.
+             * @param THRESH_BINARY make the pixels either white or black, depending on which side of the threshold value they are
+             * @param threshValue the threshold value t be used 
+             * @param maxValue the maximum value for a pixel in the output image
              */
-               threshold(result_blue_gray, result_blue_gray, 120, 255, cv::THRESH_BINARY);
-               threshold(result_yellow_gray, result_yellow_gray, 120, 255, cv::THRESH_BINARY);
+               threshold(result_blue_gray, result_blue_gray, threshValue, maxValue, cv::THRESH_BINARY);
+               threshold(result_yellow_gray, result_yellow_gray, threshValue, maxValue, cv::THRESH_BINARY);
 
 
             // 2D dynamic arrays to store the points of the contours
@@ -282,14 +277,13 @@ int32_t main(int32_t argc, char **argv) {
 
             /**
              * This method combines the dilate() and erode() methods to fill in gaps and holes of the contours in the image to make them more uniform.
-
-             * MORPH_CLOSE specifies that we want to do that kind of operation (i.e close the gaps) on the contours. 
              * Dilation: expands the bright regions in the image(the foregound), it takes the max pixel value within the structuring element
              * and sets the center pixel to that value. This will make the bright regions expand.
              * Erosion: takes the min pixel value within the structuring element and sets the center pixel to that value. This causes bright regions in the
              * image to shrink. 
              * By combining these two with the same structuring element the closing operation can remove small holes or gaps in the image while 
              * preserving the overall shape of the objects. 
+             * @param MORPH_CLOSE specifies that we want to do that kind of operation (i.e close the gaps) on the contours. 
              */
                morphologyEx(result_blue_gray, result_blue_gray, MORPH_CLOSE, kernel);
                morphologyEx(result_yellow_gray, result_yellow_gray, MORPH_CLOSE, kernel);
@@ -297,8 +291,8 @@ int32_t main(int32_t argc, char **argv) {
 
             /** 
              * Finds the contours of objects in the image. 
-             * Retrieval mode:  RETR_EXTERNAL = retrieves only the extreme outer contours. 
-             * ApproximationModes: CHAIN_APPROX_SIMPLE =  compresses horizontal, vertical, and diagonal segments and leaves only their end points. For example, an up-right rectangular contour is encoded with 4 points.
+             * @param RETR_EXTERNAL retrieves only the extreme outer contours. 
+             * @param CHAIN_APPROX_SIMPLE compresses horizontal, vertical, and diagonal segments and leaves only their end points. For example, an up-right rectangular contour is encoded with 4 points.
              */
                findContours(result_blue_gray, contours_blue, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
                findContours(result_yellow_gray, contours_yellow, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
@@ -424,10 +418,10 @@ int32_t main(int32_t argc, char **argv) {
 
 
                 namedWindow("Blue", CV_WINDOW_AUTOSIZE);
-                moveWindow("Blue", 500, 500);               // make the windows appear at a fixed place on the screen when program runs
+               // moveWindow("Blue", 500, 500);               // make the windows appear at a fixed place on the screen when program runs
                 imshow("Blue", imgContours_blue);
                 namedWindow("Yellow", CV_WINDOW_AUTOSIZE);
-                moveWindow("Yellow", 500, 650);
+              //  moveWindow("Yellow", 500, 650);
                 imshow("Yellow", imgContours_yellow);
 
             
@@ -441,7 +435,7 @@ int32_t main(int32_t argc, char **argv) {
 
                 // Display image on your screen.
                 if (VERBOSE) {
-                    moveWindow(sharedMemory->name().c_str(), 500, 800);
+                //    moveWindow(sharedMemory->name().c_str(), 500, 800);
                     cv::imshow(sharedMemory->name().c_str(), img);
                     cv::waitKey(1);
                 }

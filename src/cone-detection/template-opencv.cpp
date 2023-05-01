@@ -29,6 +29,12 @@
 
 using namespace cv;
 
+
+// Function declaration
+
+
+
+
 int32_t main(int32_t argc, char **argv) {
     int32_t retCode{1};
     // Parse the command line parameters as we require the user to specify some mandatory information on startup.
@@ -220,11 +226,12 @@ int32_t main(int32_t argc, char **argv) {
 
 
                 
-            /*Detect if car is coing clockwise or not.   
-            We use a counter to only check the first 25 frames of the video. During those 25 frames, we check the left ~40%
-            of the yellow mask image and count the number of pixels found there. If there are any pixels there, it means a yellow cone
-            has been  detected i.e. we are going counter clockwise */
-           
+            /**
+             * Detect if car is coing clockwise or not.   
+             * We use a counter to only check the first 25 frames of the video. During those 25 frames, we check the left ~40%
+             * of the yellow mask image and count the number of pixels found there that are not black. If the count is > 0 it means a yellow cone
+             * has been  detected i.e. we are going counter clockwise 
+             */
                 frameCount++;
                 std::cout << "Frame count: " << frameCount << std::endl; 
 
@@ -244,20 +251,23 @@ int32_t main(int32_t argc, char **argv) {
                result_blue_gray = result_blue_gray(Range(290, 410), Range(0, 640));
                result_yellow_gray = result_yellow_gray(Range(290, 410), Range(0, 640));
                
-            // *************************************************************************************
+           
                                 
-            /*The Canny method will find edges in an image using the Canny algorithm. It marks the edges and saves them in the gray masks Mat. 
-            The thresholds are used for determining which edges to detect. 
-            High threshold is used to identify "strong" edges in the image. Any edge with an intensity gradient magnitude above the threshold will be kept.
-            Low threshold is used to identify weak edges, any edges with an intensity gradient magnitude below loThresh will be discarded.
-            Edges between low and high: any edge pixel that is connected to a strong edge pixel is also considered a strong edge pixel and is retained. */
-            
+            /** 
+             * The Canny method will find edges in an image using the Canny algorithm. It marks the edges and saves them in the gray masks Mat. 
+             * The thresholds are used for determining which edges to detect. 
+             * High threshold is used to identify "strong" edges in the image. Any edge with an intensity gradient magnitude above the threshold will be kept.
+             * Low threshold is used to identify weak edges, any edges with an intensity gradient magnitude below loThresh will be discarded.
+             * Edges between low and high: any edge pixel that is connected to a strong edge pixel is also considered a strong edge pixel and is retained. 
+             */
                Canny(result_blue_gray, result_blue_gray, lowThresh, hiThresh);
                Canny(result_yellow_gray, result_yellow_gray, lowThresh, hiThresh);
 
-            /* Threshold the images
-            THRESH_BINARY means that each pixel is compared to the threshold value (120) and if it is larger, then it will be set to 255 == white. 
-            if it is lower it will be set to 0 == black. */
+            /** 
+             * Threshold the images, basically makes all the pixels either black or white
+             * THRESH_BINARY means that each pixel is compared to the threshold value (120) and if it is larger, then it will be set to 255 == white. 
+             * if it is lower it will be set to 0 == black. 
+             */
                threshold(result_blue_gray, result_blue_gray, 120, 255, cv::THRESH_BINARY);
                threshold(result_yellow_gray, result_yellow_gray, 120, 255, cv::THRESH_BINARY);
 
@@ -270,38 +280,43 @@ int32_t main(int32_t argc, char **argv) {
             // we create a structuring element 5x5 pixels large, with the shape of a rectangle. 
                 Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
 
-            /*This method combines the dilate() and erode() methods to fill in gaps and holes of the contours in the image to make them more uniform.
+            /**
+             * This method combines the dilate() and erode() methods to fill in gaps and holes of the contours in the image to make them more uniform.
 
-            MORPH_CLOSE specifies that we want to do that kind of operation (i.e close the gaps) on the contours. 
-            Dilation: expands the bright regions in the image(the foregound), it takes the max pixel value within the structuring element
-            and sets the center pixel to that value. This will make the bright regions expand.
-            Erosion: takes the min pixel value within the structuring element and sets the center pixel to that value. This causes bright regions in the
-            image to shrink. 
-            By combining these two with the same structuring element the closing operation can remove small holes or gaps in the image while 
-            preserving the overall shape of the objects. */
-
+             * MORPH_CLOSE specifies that we want to do that kind of operation (i.e close the gaps) on the contours. 
+             * Dilation: expands the bright regions in the image(the foregound), it takes the max pixel value within the structuring element
+             * and sets the center pixel to that value. This will make the bright regions expand.
+             * Erosion: takes the min pixel value within the structuring element and sets the center pixel to that value. This causes bright regions in the
+             * image to shrink. 
+             * By combining these two with the same structuring element the closing operation can remove small holes or gaps in the image while 
+             * preserving the overall shape of the objects. 
+             */
                morphologyEx(result_blue_gray, result_blue_gray, MORPH_CLOSE, kernel);
                morphologyEx(result_yellow_gray, result_yellow_gray, MORPH_CLOSE, kernel);
 
 
-            /*Finds the contours of objects in the image. 
-            Retrieval mode:  RETR_EXTERNAL = retrieves only the extreme outer contours. 
-            ApproximationModes: CHAIN_APPROX_SIMPLE =  compresses horizontal, vertical, and diagonal segments and leaves only their end points. For example, an up-right rectangular contour is encoded with 4 points.*/
-
+            /** 
+             * Finds the contours of objects in the image. 
+             * Retrieval mode:  RETR_EXTERNAL = retrieves only the extreme outer contours. 
+             * ApproximationModes: CHAIN_APPROX_SIMPLE =  compresses horizontal, vertical, and diagonal segments and leaves only their end points. For example, an up-right rectangular contour is encoded with 4 points.
+             */
                findContours(result_blue_gray, contours_blue, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
                findContours(result_yellow_gray, contours_yellow, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-            /* Initializes the imgContours matrices to be the same size as their gray versions and with all pixels set to 0 i.e. black
-            without doing this we get an error saying that the imgContours is not the right size*/
-
+            /** 
+             * Initializes the imgContours matrices to be the same size as their gray versions and with all pixels set to 0 i.e. black
+             * without doing this we get an error saying that the imgContours is not the right size
+             */
                Mat imgContours_blue, imgContours_yellow;
                imgContours_blue = Mat::zeros(result_blue_gray.size(), CV_8UC3);
                imgContours_yellow = Mat::zeros(result_yellow_gray.size(), CV_8UC3);
 
                 
-            /* We define vectors of Moments called moms, the same size as the contours vectors.
-            Moments are objects that will contain some information about each shape. We can use it to calculate area, orientation, size etc.,
-            in our case we are interested in the centroid = geometric center of the object. */ 
+            /**
+             *  We define vectors of Moments called moms, the same size as the contours vectors.
+             * Moments are objects that will contain some information about each shape. We can use it to calculate area, orientation, size etc.,
+             * in our case we are interested in the centroid = geometric center of the object.
+             */ 
                 std::vector<Moments> moms_blue(contours_blue.size());
                 for(int i = 0; i < contours_blue.size(); i++) {
                     moms_blue[i] = moments(contours_blue[i]);
@@ -335,7 +350,7 @@ int32_t main(int32_t argc, char **argv) {
                 std::vector<Rect> rects_blue; 
                 std::vector<Rect> rects_yellow;
                 
-                // loop through the contours and 
+                // loop through the contours and draw them out on an image
                 for(size_t i = 0; i < contours_blue.size(); i++) {
                     
                     // draws the contours out on the imgContours_blue image.
@@ -406,7 +421,8 @@ int32_t main(int32_t argc, char **argv) {
                     }
 
                  }
-                // add comment for pipeline
+
+
                 namedWindow("Blue", CV_WINDOW_AUTOSIZE);
                 moveWindow("Blue", 500, 500);               // make the windows appear at a fixed place on the screen when program runs
                 imshow("Blue", imgContours_blue);

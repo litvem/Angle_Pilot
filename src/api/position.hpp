@@ -69,10 +69,6 @@
  */
 namespace pos_api {
 
-    // Constant used in place of cone_t.posX and cone_t.posY
-    // when no cone position is available
-    const uint16_t NO_CONE_POS = UINT16_MAX;
-
     /**
      * A struct holding positional information
      * of cones. It is only intended to be
@@ -85,6 +81,12 @@ namespace pos_api {
     struct cone_t {
         const uint16_t posX;
         const uint16_t posY;
+    };
+
+    // Constant used when no cone position is available
+    const cone_t NO_CONE_POS{
+        UINT16_MAX,
+        UINT16_MAX
     };
 
     /**
@@ -108,19 +110,19 @@ namespace pos_api {
      * microservices. It consists of multiple
      * cones and timestamps.
      * 
-     * @param lClose the closest left hand cone
-     * @param lFar the second closest left hand cone
-     * @param rClose the closest right hand cone
-     * @param rFar the second closest right hand cone
+     * @param bClose the closest blue cone
+     * @param bFar the second closest blue cone
+     * @param yClose the closest yellow cone
+     * @param yFar the second closest yellow cone
      * @param now the current UNIX timestamp
      * @param vidTimestamp the timestamp used in
      * the .rec file
      */
     struct data_t {
-        const cone_t lClose;
-        const cone_t lFar;
-        const cone_t rClose;
-        const cone_t rFar;
+        const cone_t bClose;
+        const cone_t bFar;
+        const cone_t yClose;
+        const cone_t yFar;
         const timestamp_t now;
         const timestamp_t vidTimestamp;
     };

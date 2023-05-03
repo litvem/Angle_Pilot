@@ -18,10 +18,13 @@
 #include <time.h>
 #include <chrono>
 #include <ctime>
+#include <iostream>
 // Include the single-file, header-only middleware libcluon to create high-performance microservices
 #include "cluon-complete.hpp"
 // Include the OpenDLV Standard Message Set that contains messages that are usually exchanged for automotive or robotic applications 
 #include "opendlv-standard-message-set.hpp"
+// include pos-api header file
+#include "../api/position.hpp"
 
 // Include the GUI and image processing header files from OpenCV
 #include <opencv2/highgui/highgui.hpp>
@@ -29,14 +32,19 @@
 
 using namespace cv;
 using namespace std;
+//using namespace pos_api;
 
 
 // Function declaration
-
-
+void handleExit(int sig);
 
 
 int32_t main(int32_t argc, char **argv) {
+
+//---------------------------------------
+    signal(SIGINT, handleExit);
+//---------------------------------------
+
     int32_t retCode{1};
     // Parse the command line parameters as we require the user to specify some mandatory information on startup.
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
@@ -69,6 +77,26 @@ int32_t main(int32_t argc, char **argv) {
             cluon::OD4Session od4{static_cast<uint16_t>(std::stoi(commandlineArguments["cid"]))};
 
     /*-------------------------------------------- v ---------------------------------------------*/
+
+            // We try to create a shared memory so the two microservices will be able to communicate
+            // with eachother
+            try
+            {
+                pos_api::create();
+            }
+            catch (const pos_api::APIException& e)
+            {
+                switch (e)
+                {
+                    case pos_api::APIException::CREATED:
+                        std::cerr << "Shared memory already exists" << std::endl;
+                        break;
+                    default:
+                        std::cerr << "Oops! Something went wrong" << std::endl;
+                }
+
+                handleExit(0);
+            }
              // Create an OpenCV image header using the data in the shared memory.
             IplImage *iplimage{nullptr};
             CvSize size;
@@ -241,9 +269,7 @@ int32_t main(int32_t argc, char **argv) {
                 // Crop images 
                 result_blue_gray = result_blue_gray(Range(290, 400), Range(0, 640));
                 result_yellow_gray = result_yellow_gray(Range(290, 400), Range(0, 640));
-                
-           
-                                    
+                            
                 /** 
                  * The Canny method will find edges in an image using the Canny algorithm. It marks the edges and saves them in the gray masks Mat. 
                  * The thresholds are used for determining which edges to detect. 
@@ -263,7 +289,6 @@ int32_t main(int32_t argc, char **argv) {
                  */
                 threshold(result_blue_gray, result_blue_gray, threshValue, maxValue, cv::THRESH_BINARY);
                 threshold(result_yellow_gray, result_yellow_gray, threshValue, maxValue, cv::THRESH_BINARY);
-
 
                 // 2D dynamic arrays to store the points of the contours
                 std::vector<std::vector<Point>> contours_blue;
@@ -299,7 +324,7 @@ int32_t main(int32_t argc, char **argv) {
                 
                 // selection sort on blue contours, descending order
                 for(size_t i = 0; i < contours_blue.size(); i++) {
-                     int maxIndex = i;
+                     size_t maxIndex = i;
                      double maxArea = contourArea(contours_blue[maxIndex]);
                      for(size_t j = i + 1; j < contours_blue.size(); j++) {
                         double currentArea = contourArea(contours_blue[j]);
@@ -318,7 +343,7 @@ int32_t main(int32_t argc, char **argv) {
 
                 // selection sort on yellow contours, descending order
                  for(size_t i = 0; i < contours_yellow.size(); i++) {
-                     int maxIndex = i;
+                     size_t maxIndex = i;
                      double maxArea = contourArea(contours_yellow[maxIndex]);
                      for(size_t j = i + 1; j < contours_yellow.size(); j++) {
                         double currentArea = contourArea(contours_yellow[j]);
@@ -349,7 +374,7 @@ int32_t main(int32_t argc, char **argv) {
                  * in our case we are interested in the centroid = geometric center of the object.
                  */ 
                 std::vector<Moments> moms_blue(contours_blue.size());
-                for(int i = 0; i < contours_blue.size(); i++) {
+                for(size_t i = 0; i < contours_blue.size(); i++) {
                     moms_blue[i] = moments(contours_blue[i]);
                 }
                 // we loop through the moments and perform operations on them to get the centroid values 
@@ -367,7 +392,7 @@ int32_t main(int32_t argc, char **argv) {
 
                 // We do the same thing for the yellow contours
                 std::vector<Moments> moms_yellow(contours_yellow.size());
-                for(int i = 0; i < contours_yellow.size(); i++) {
+                for(size_t i = 0; i < contours_yellow.size(); i++) {
                     moms_yellow[i] = moments(contours_yellow[i]);
                 }
                 // centroids yellow
@@ -377,9 +402,11 @@ int32_t main(int32_t argc, char **argv) {
                     centroids_yellow[i] = Point2f(static_cast<float>(moms_yellow[i].m10/moms_yellow[i].m00), static_cast<float>(moms_yellow[i].m01/moms_yellow[i].m00));
                 }
 
-                // create vectors to hold the blue and yellow Rect objects
-                std::vector<Rect> rects_blue; 
-                std::vector<Rect> rects_yellow;
+                // declare variables to hold coordinates of blue cones
+                 uint16_t bCloseX;
+                 uint16_t bCloseY;
+                 uint16_t bFarX;
+                 uint16_t bFarY;
                 
                 // loop through the contours and draw them out on an image
                 for(size_t i = 0; i < contours_blue.size(); i++) {
@@ -390,7 +417,6 @@ int32_t main(int32_t argc, char **argv) {
                     // boundingRect finds the smallest rectangle that completely encloses a given contour or set of points. 
                     // boundingRect returns the x and y coordinates of the top left corner as one Point, the width and the height and stores it in a Rect object.
                     cv::Rect rectAroundCone = cv::boundingRect(contours_blue[i]);
-                    //std::cout << "Blue Height: " << rectAroundCone.height << " Width:  " << rectAroundCone.width << std::endl;
                 
                     // We try to ignore the smallest contours spotted by only drawing rectangles for Rects that have width and height > 5 to reduce noise
                     if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
@@ -399,29 +425,34 @@ int32_t main(int32_t argc, char **argv) {
                         cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
 
                         // if it is the first iteration, skip until next iteration. 
-                        if(i == 0) {
-                            continue;
-                        // We assume that the contours closest to the car get discovered first. We compare the contour further away from the car with the one closer to the car.
-                        // If the Rect enclosing the contour closer to the car (i.e. rects_blue[i - 1]) has a width and height larger than the one further away, draw a line between the
-                        // centroids of those two contours
-                        } else {
-                            //if(rects_blue[i - 1].height > rectAroundCone.height && rects_blue[i - 1].width > rectAroundCone.width ) {
-                                rects_blue.push_back(rectAroundCone);
-                                line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i].x, centroids_blue[i].y), cv::Scalar(0, 0, 255), 2);
-                                // We need to know if the car is goind clockwise or not to draw the second line correctly
-                                if(clockwise) {
-                                   // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x + 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                                } else {
-                                   // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x - 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                                }
-                                
-                           // } 
-                         }
-
+                        
+                        // We store the centroid coordinates of the largest contour (i.e. centroids_blue[i - 1]) and the second largest contour (i.e centroids_blue[i])
+                        // in variables to send to shared memory later. And we draw a line between the cones. 
+                        if(i == 1) {
+                            bCloseX = centroids_blue[i - 1].x;
+                            bCloseY = centroids_blue[i - 1].y;
+                            bFarX = centroids_blue[i].x;
+                            bFarY = centroids_blue[i].y;
+                            line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i].x, centroids_blue[i].y), cv::Scalar(0, 0, 255), 2);
+                            // We need to know if the car is goind clockwise or not to draw the second line correctly
+                            if(clockwise) {
+                                // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x + 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                            } else {
+                                // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x - 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                            }
+                        //since we only care about sending data about the closeest two cones, no need to continue loop if i > 1  
+                        } else if(i > 1) {
+                            break;
+                        }
                     }
 
                 }
 
+                // Define variables for 
+                 uint16_t yCloseX;
+                 uint16_t yCloseY;
+                 uint16_t yFarX;
+                 uint16_t yFarY;
                 // we do the same operations for the yellow cones as for the blue ones
                  for(size_t i = 0; i < contours_yellow.size(); i++) {
                     
@@ -430,31 +461,27 @@ int32_t main(int32_t argc, char **argv) {
                     
                     // get Rect object
                     cv::Rect rectAroundCone = cv::boundingRect(contours_yellow[i]);
-                    //std::cout << "Yellow Height: " << rectAroundCone.height << " Width:  " << rectAroundCone.width << std::endl;
 
                    // if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
                     // draw rectangle
                     cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
-                     if(i == 0) {
-                        //rects_yellow.push_back(rectAroundCone);
-                        continue;
-                    } 
-                    else {
-                        //if(rects_yellow[i - 1].height > rectAroundCone.height && rects_yellow[i - 1].width > rectAroundCone.width) {
-                            rects_yellow.push_back(rectAroundCone);
+                   
+                   // same procedure for yellow as for blue
+                    if(i == 1) {
+                            yCloseX = centroids_yellow[i - 1].x;
+                            yCloseY = centroids_yellow[i - 1].y;
+                            yFarX = centroids_yellow[i].x;
+                            yFarY = centroids_yellow[i].y;
                             line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i].x, centroids_yellow[i].y), cv::Scalar(0, 0, 255), 2);
                             if(clockwise) {
                                // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x - 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
                             } else {
                                // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x + 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
                             }
-
-
-                        //} 
+                    } else if(i > 1) {
+                        break;
                     }
-
-                 //}
-                 }
+                }
                 // comment
                 namedWindow("Blue", CV_WINDOW_AUTOSIZE);
                 //moveWindow("Blue", 300, 200);               // make the windows appear at a fixed place on the screen when program runs
@@ -463,7 +490,25 @@ int32_t main(int32_t argc, char **argv) {
                 //moveWindow("Yellow", 400, 300);
                 imshow("Yellow", imgContours_yellow);
 
-            
+    
+            // Get the UNIX timestamp
+                cluon::data::TimeStamp t = cluon::time::now();
+
+            // Fill the struct with all the cordinates of the two closest yellow and blue cones and the current timestamp
+                pos_api::data_t coneData {
+                    {bCloseX, bCloseY},
+                    {bFarX, bFarY},
+                    {yCloseX, yCloseY},
+                    {yFarX, yFarY},
+                    {t.seconds(), t.microseconds()},
+                    {t.seconds(), t.microseconds()}
+                };
+
+                // put the cone data into the shared memory to be extracted by the steering calculator microservice
+                pos_api::put(coneData);
+
+    
+     //-------------------------------------------------^-----------------------------------------------------
 
                 // If you want to access the latest received ground steering, don't forget to lock the mutex:
                 {
@@ -487,6 +532,15 @@ int32_t main(int32_t argc, char **argv) {
         }
         retCode = 0;
     }
+    pos_api::clear();
     return retCode;
+}
+
+void handleExit(int sig)
+{
+    std::clog << std::endl << "Cleaning up..." << std::endl;
+    pos_api::clear();
+    std::clog << "Exiting programme..." << std::endl;
+    exit(0);
 }
 

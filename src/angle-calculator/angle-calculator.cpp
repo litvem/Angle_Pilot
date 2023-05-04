@@ -17,8 +17,10 @@
  * Struct representing a linear mathematical functions.
  * (y = coefficient * x + constant)
  * 
- * @param coefficient the slope of the linear function
- * @param constant the constant of the linear function
+ * @param coefficient the slope of the linear function.
+ * float max if the slope inclination is infinite
+ * @param constant the constant of the linear function.
+ * x value if the slope inclination is infinite
  */
 struct line_t {
     _Float32 coefficient;
@@ -37,10 +39,8 @@ struct point_t {
     _Float32 y;
 };
 
-const line_t INF_SLOPE{
-    std::numeric_limits<_Float32>::max(),
-    std::numeric_limits<_Float32>::max()
-};
+// The coefficient for a slope with infinite inclination
+const _Float32 INF_SLOPE = std::numeric_limits<_Float32>::max();
 
 void handleExit(int sig);
 
@@ -112,7 +112,8 @@ line_t getLineFromCones(pos_api::cone_t close, pos_api::cone_t far)
     // Catch division by 0 (infinite slope)
     if (far.posX == close.posX)
     {
-        return INF_SLOPE;
+        // Includes the x value in place of line_t.constant
+        return {INF_SLOPE, (_Float32) close.posX};
     }
 
     // dy/dx

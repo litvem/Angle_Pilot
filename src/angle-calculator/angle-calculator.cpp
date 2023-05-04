@@ -13,6 +13,12 @@
 // Used to get the limits of numeric types
 #include <limits>
 
+// The maximum steering value for a left turn
+#define MAX_LEFT_STEERING_VAL 0.290888f
+
+// The maximum steering value for a right turn
+#define MAX_RIGHT_STEERING_VAL -MAX_LEFT_STEERING_VAL
+
 /**
  * Struct representing a linear mathematical functions.
  * (y = coefficient * x + constant)

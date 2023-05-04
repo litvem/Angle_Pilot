@@ -32,7 +32,6 @@
 
 using namespace cv;
 using namespace std;
-//using namespace pos_api;
 
 
 // Function declaration
@@ -359,6 +358,7 @@ int32_t main(int32_t argc, char **argv) {
                     //cout << "Contour area yellow[" << i << "] = " << contourArea(contours_yellow[i]) << endl;                                                                                                                                                                                                                                                                                                
                 }
                 //cout << "---------------" << endl;
+
                 /** 
                  * Initializes the imgContours matrices to be the same size as their gray versions and with all pixels set to 0 i.e. black
                  * without doing this we get an error saying that the imgContours is not the right size
@@ -369,7 +369,7 @@ int32_t main(int32_t argc, char **argv) {
 
                     
                 /**
-                 *  We define vectors of Moments called moms, the same size as the contours vectors.
+                 * We define vectors of Moments called moms, the same size as the contours vectors.
                  * Moments are objects that will contain some information about each shape. We can use it to calculate area, orientation, size etc.,
                  * in our case we are interested in the centroid = geometric center of the object.
                  */ 
@@ -408,52 +408,60 @@ int32_t main(int32_t argc, char **argv) {
                  uint16_t bFarX;
                  uint16_t bFarY;
                 
+                if(contours_blue.size() != 0) {
                 // loop through the contours and draw them out on an image
-                for(size_t i = 0; i < contours_blue.size(); i++) {
-                    
-                    // draws the contours out on the imgContours_blue image.
-                    drawContours(imgContours_blue, contours_blue, (int)i, Scalar(0, 255, 0), 1);
-                    
-                    // boundingRect finds the smallest rectangle that completely encloses a given contour or set of points. 
-                    // boundingRect returns the x and y coordinates of the top left corner as one Point, the width and the height and stores it in a Rect object.
-                    cv::Rect rectAroundCone = cv::boundingRect(contours_blue[i]);
-                
-                    // We try to ignore the smallest contours spotted by only drawing rectangles for Rects that have width and height > 5 to reduce noise
-                    if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
+                    for(size_t i = 0; i < contours_blue.size(); i++) {
                         
-                        // draw a rectangle with the Rect as base
-                        cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
+                        // draws the contours out on the imgContours_blue image.
+                        drawContours(imgContours_blue, contours_blue, (int)i, Scalar(0, 255, 0), 1);
+                        
+                        // boundingRect finds the smallest rectangle that completely encloses a given contour or set of points. 
+                        // boundingRect returns the x and y coordinates of the top left corner as one Point, the width and the height and stores it in a Rect object.
+                        cv::Rect rectAroundCone = cv::boundingRect(contours_blue[i]);
+                    
+                        // We try to ignore the smallest contours spotted by only drawing rectangles for Rects that have width and height > 5 to reduce noise
+                        if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
+                            
+                            // draw a rectangle with the Rect as base
+                            cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
 
-                        // if it is the first iteration, skip until next iteration. 
-                        
-                        // We store the centroid coordinates of the largest contour (i.e. centroids_blue[i - 1]) and the second largest contour (i.e centroids_blue[i])
-                        // in variables to send to shared memory later. And we draw a line between the cones. 
-                        if(i == 1) {
-                            bCloseX = centroids_blue[i - 1].x;
-                            bCloseY = centroids_blue[i - 1].y;
-                            bFarX = centroids_blue[i].x;
-                            bFarY = centroids_blue[i].y;
-                            line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i].x, centroids_blue[i].y), cv::Scalar(0, 0, 255), 2);
-                            // We need to know if the car is goind clockwise or not to draw the second line correctly
-                            if(clockwise) {
-                                // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x + 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                            } else {
-                                // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x - 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                            // if it is the first iteration, skip until next iteration. 
+                            
+                            // We store the centroid coordinates of the largest contour (i.e. centroids_blue[i - 1]) and the second largest contour (i.e centroids_blue[i])
+                            // in variables to send to shared memory later. And we draw a line between the cones. 
+                            if(i == 1) {
+                                bCloseX = centroids_blue[i - 1].x;
+                                bCloseY = centroids_blue[i - 1].y;
+                                bFarX = centroids_blue[i].x;
+                                bFarY = centroids_blue[i].y;
+                                line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i].x, centroids_blue[i].y), cv::Scalar(0, 0, 255), 2);
+                                // We need to know if the car is goind clockwise or not to draw the second line correctly
+                                if(clockwise) {
+                                    // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x + 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                                } else {
+                                    // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x - 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                                }
+                            //since we only care about sending data about the closeest two cones, no need to continue loop if i > 1  
+                            } else if(i > 1) {
+                                break;
                             }
-                        //since we only care about sending data about the closeest two cones, no need to continue loop if i > 1  
-                        } else if(i > 1) {
-                            break;
                         }
                     }
-
+                } else {
+                    bCloseX = UINT16_MAX;
+                    bCloseY =  UINT16_MAX;
+                    bFarX = UINT16_MAX;
+                    bFarY = UINT16_MAX;   
                 }
 
-                // Define variables for 
+                // Define variables for yellow cone position data
                  uint16_t yCloseX;
                  uint16_t yCloseY;
                  uint16_t yFarX;
                  uint16_t yFarY;
-                // we do the same operations for the yellow cones as for the blue ones
+
+                 if(contours_yellow.size() != 0) {
+                 // we do the same operations for the yellow cones as for the blue ones
                  for(size_t i = 0; i < contours_yellow.size(); i++) {
                     
                     //draw contours
@@ -481,7 +489,17 @@ int32_t main(int32_t argc, char **argv) {
                     } else if(i > 1) {
                         break;
                     }
+                 }
+                 // If the contours_yellow vector is empty, no yellow cones are visible which most likely
+                 // means the car is in a curve. UINT16_MAX (65535) will represent this. 
+                } else {
+                    yCloseX = UINT16_MAX;
+                    yCloseY =  UINT16_MAX;
+                    yFarX = UINT16_MAX;
+                    yFarY = UINT16_MAX;   
                 }
+
+
                 // comment
                 namedWindow("Blue", CV_WINDOW_AUTOSIZE);
                 //moveWindow("Blue", 300, 200);               // make the windows appear at a fixed place on the screen when program runs
@@ -491,10 +509,10 @@ int32_t main(int32_t argc, char **argv) {
                 imshow("Yellow", imgContours_yellow);
 
     
-            // Get the UNIX timestamp
+                // Get the UNIX timestamp
                 cluon::data::TimeStamp t = cluon::time::now();
 
-            // Fill the struct with all the cordinates of the two closest yellow and blue cones and the current timestamp
+                // Fill the struct with all the cordinates of the two closest yellow and blue cones and the current timestamp
                 pos_api::data_t coneData {
                     {bCloseX, bCloseY},
                     {bFarX, bFarY},

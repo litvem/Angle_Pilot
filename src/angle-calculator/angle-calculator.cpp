@@ -10,6 +10,9 @@
 // Include the standard int types of C
 #include <cstdint>
 
+// Used to get the limits of numeric types
+#include <limits>
+
 /**
  * Struct representing a linear mathematical functions.
  * (y = coefficient * x + constant)
@@ -32,6 +35,11 @@ struct line_t {
 struct point_t {
     _Float32 x;
     _Float32 y;
+};
+
+const line_t INF_SLOPE{
+    std::numeric_limits<_Float32>::max(),
+    std::numeric_limits<_Float32>::max()
 };
 
 void handleExit(int sig);
@@ -101,6 +109,12 @@ void handleExit(int sig)
 
 line_t getLineFromCones(pos_api::cone_t close, pos_api::cone_t far)
 {
+    // Catch division by 0 (infinite slope)
+    if (far.posX == close.posX)
+    {
+        return INF_SLOPE;
+    }
+
     // dy/dx
     _Float32 coeff = (far.posY - close.posY) / (far.posX - close.posX);
     // y1 - ax1

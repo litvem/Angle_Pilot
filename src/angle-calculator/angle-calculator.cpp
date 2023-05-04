@@ -1,10 +1,6 @@
 // Include the header with structs to test the shared memory on
 #include "../api/position.hpp"
 
-// We will use chrono and thread to sleep for a while.
-#include <chrono>
-#include <thread>
-
 #include <iostream>
 
 // Include the standard int types of C

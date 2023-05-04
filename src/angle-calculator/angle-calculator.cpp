@@ -52,9 +52,26 @@ void handleExit(int sig);
  * @param close the closest cone of one side
  * @param far the second closest cone on the
  * same side
+ * @returns the coefficient and constant for
+ * a linear mathematical function unless it
+ * has an infinite slope inclination, in which
+ * case it returns float max and the x value
+ * of the line
  */
 line_t getLineFromCones(pos_api::cone_t close, pos_api::cone_t far);
 
+/**
+ * Calculates the intersection between 2 lines,
+ * if there is one. Otherwise returns the origin
+ * in terms of the car heading.
+ * 
+ * @param f one of the functions to check the
+ * intersect of
+ * @param g the other function to check the
+ * intersect of
+ * @returns the point of intersect if there is one,
+ * otherwise the origin in terms of the car heading
+ */
 point_t getIntersect(line_t f, line_t g);
 
 _Float32 getAngle(point_t origin, point_t p);
@@ -122,4 +139,39 @@ line_t getLineFromCones(pos_api::cone_t close, pos_api::cone_t far)
     _Float32 constant = far.posY - (coeff * far.posX);
 
     return {coeff, constant};
+}
+
+point_t getIntersect(line_t f, line_t g)
+{
+    // x coordinate of the intersect
+    _Float32 x;
+    // y coordinate of the intersect
+    _Float32 y;
+
+    if (f.coefficient == INF_SLOPE && g.coefficient == INF_SLOPE)
+    {
+        // TODO: return origin
+    }
+    else if (f.coefficient == INF_SLOPE)
+    {
+        x = f.constant;
+        y = g.coefficient * x;
+    }
+    else if (g.coefficient == INF_SLOPE)
+    {
+        x = g.coefficient;
+        y = f.coefficient * x;
+    }
+    else
+    {
+        // f(x) = g(x)
+        // mf * x + bf = mg * x + bg
+        // x * (mf - mg) = bg - bf
+        // x = (bg - bf) / (mf - mg)
+        x = (g.constant - f.constant) / (f.coefficient - g.coefficient);
+
+        y = f.coefficient * x;
+    }
+
+    return {x, y};
 }

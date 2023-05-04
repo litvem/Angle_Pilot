@@ -44,8 +44,13 @@ int32_t main(int32_t argc, char **argv)
     {
         pos_api::data_t d = pos_api::get();
 
-        std::cout << "@ <t:" << d.now.seconds << "." << d.now.micros << ">" << std::endl;
-    }
+        std::cout << "TIMESTAMP: " << d.now.seconds << std::endl;
+        std::cout << "Blue Close X:" << d.bClose.posX << ", Blue Close Y:" << d.bClose.posY << std::endl;
+        std::cout << "Blue Far X:" << d.bFar.posX << ", Blue Far Y:" << d.bFar.posY << std::endl;
+        std::cout << "Yellow Close X:" << d.yClose.posX << ", Yellow Close Y:" << d.yClose.posY << std::endl;
+        std::cout << "Yellow Far X:" << d.yFar.posX << ", Yellow Far Y:" << d.yFar.posY << std::endl;
+
+    }   
 
     return 0;
 }

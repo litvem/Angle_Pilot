@@ -403,10 +403,15 @@ int32_t main(int32_t argc, char **argv) {
                 }
 
                 // declare variables to hold coordinates of blue cones
-                 uint16_t bCloseX;
-                 uint16_t bCloseY;
-                 uint16_t bFarX;
-                 uint16_t bFarY;
+                uint16_t bCloseX;
+                uint16_t bCloseY;
+                uint16_t bFarX;
+                uint16_t bFarY;
+
+                pos_api::cone_t bClose{};
+                pos_api::cone_t bFar{};
+                pos_api::cone_t yClose{};
+                pos_api::cone_t yFar{};
                 
                 if(contours_blue.size() != 0) {
                 // loop through the contours and draw them out on an image
@@ -424,16 +429,10 @@ int32_t main(int32_t argc, char **argv) {
                             
                             // draw a rectangle with the Rect as base
                             cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
-
-                            // if it is the first iteration, skip until next iteration. 
                             
                             // We store the centroid coordinates of the largest contour (i.e. centroids_blue[i - 1]) and the second largest contour (i.e centroids_blue[i])
                             // in variables to send to shared memory later. And we draw a line between the cones. 
                             if(i == 1) {
-                                bCloseX = centroids_blue[i - 1].x;
-                                bCloseY = centroids_blue[i - 1].y;
-                                bFarX = centroids_blue[i].x;
-                                bFarY = centroids_blue[i].y;
                                 line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i].x, centroids_blue[i].y), cv::Scalar(0, 0, 255), 2);
                                 // We need to know if the car is goind clockwise or not to draw the second line correctly
                                 if(clockwise) {
@@ -441,19 +440,27 @@ int32_t main(int32_t argc, char **argv) {
                                 } else {
                                     // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x - 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
                                 }
-                            //since we only care about sending data about the closeest two cones, no need to continue loop if i > 1  
+                            //since we only care about sending data about the closeest two cones, no need to continue loop if i > 1   
                             } else if(i > 1) {
                                 break;
                             }
                         }
                     }
-                } else {
-                    bCloseX = UINT16_MAX;
-                    bCloseY =  UINT16_MAX;
-                    bFarX = UINT16_MAX;
-                    bFarY = UINT16_MAX;   
                 }
-
+                if(contours_blue.size() > 1) {
+                    bCloseX = centroids_blue[0].x;
+                    bCloseY = centroids_blue[0].y;
+                    bFarX = centroids_blue[1].x;
+                    bFarY = centroids_blue[1].y;
+                    pos_api::cone_t tmpClose{bCloseX, bCloseY};
+                    pos_api::cone_t tmpFar{bFarX, bFarY};
+                    memcpy(&bClose, &tmpClose, sizeof(pos_api::cone_t));
+                    memcpy(&bFar, &tmpFar, sizeof(pos_api::cone_t));
+                } else {
+                    memcpy(&bFar, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
+                    memcpy(&bClose, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
+                }
+                 
                 // Define variables for yellow cone position data
                  uint16_t yCloseX;
                  uint16_t yCloseY;
@@ -470,33 +477,38 @@ int32_t main(int32_t argc, char **argv) {
                     // get Rect object
                     cv::Rect rectAroundCone = cv::boundingRect(contours_yellow[i]);
 
-                   // if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
+                    // if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
                     // draw rectangle
                     cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
                    
-                   // same procedure for yellow as for blue
+                    // same procedure for yellow as for blue
                     if(i == 1) {
-                            yCloseX = centroids_yellow[i - 1].x;
-                            yCloseY = centroids_yellow[i - 1].y;
-                            yFarX = centroids_yellow[i].x;
-                            yFarY = centroids_yellow[i].y;
-                            line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i].x, centroids_yellow[i].y), cv::Scalar(0, 0, 255), 2);
-                            if(clockwise) {
-                               // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x - 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                            } else {
-                               // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x + 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                            }
+                        line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i].x, centroids_yellow[i].y), cv::Scalar(0, 0, 255), 2);
+                        if(clockwise) {
+                            // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x - 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                        } else {
+                            // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x + 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                        }
                     } else if(i > 1) {
                         break;
                     }
                  }
                  // If the contours_yellow vector is empty, no yellow cones are visible which most likely
-                 // means the car is in a curve. UINT16_MAX (65535) will represent this. 
+                 // means the car is in a curve. UINT16_MAX ( = 65535) will represent this. 
+                }
+
+                if(contours_yellow.size() > 1) {
+                    yCloseX = centroids_yellow[0].x;
+                    yCloseY = centroids_yellow[0].y;
+                    yFarX = centroids_yellow[1].x;
+                    yFarY = centroids_yellow[1].y;
+                    pos_api::cone_t tmpClose{yCloseX, yCloseY};
+                    pos_api::cone_t tmpFar{yFarX, yFarY};
+                    memcpy(&yClose, &tmpClose, sizeof(pos_api::cone_t));
+                    memcpy(&yFar, &tmpFar, sizeof(pos_api::cone_t));
                 } else {
-                    yCloseX = UINT16_MAX;
-                    yCloseY =  UINT16_MAX;
-                    yFarX = UINT16_MAX;
-                    yFarY = UINT16_MAX;   
+                    memcpy(&yFar, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
+                    memcpy(&yClose, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
                 }
 
 
@@ -514,12 +526,12 @@ int32_t main(int32_t argc, char **argv) {
 
                 // Fill the struct with all the cordinates of the two closest yellow and blue cones and the current timestamp
                 pos_api::data_t coneData {
-                    {bCloseX, bCloseY},
-                    {bFarX, bFarY},
-                    {yCloseX, yCloseY},
-                    {yFarX, yFarY},
-                    {t.seconds(), t.microseconds()},
-                    {t.seconds(), t.microseconds()}
+                    bClose,
+                    bFar,
+                    yClose,
+                    yFar,
+                    {t.seconds(), t.microseconds()},   
+                    {t.seconds(), t.microseconds()}   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
                 };
 
                 // put the cone data into the shared memory to be extracted by the steering calculator microservice

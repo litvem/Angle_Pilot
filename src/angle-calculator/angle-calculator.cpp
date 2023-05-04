@@ -10,13 +10,25 @@
 // Include the standard int types of C
 #include <cstdint>
 
-// Struct representing a linear functions
+/**
+ * Struct representing a linear mathematical functions.
+ * (y = coefficient * x + constant)
+ * 
+ * @param coefficient the slope of the linear function
+ * @param constant the constant of the linear function
+ */
 struct line_t {
     float_t coefficient;
     float_t constant;
 };
 
-// Struct representing a point in a graph
+/**
+ * Struct representing a point in a graph with x and y
+ * coordinates
+ * 
+ * @param x the x coordinate of the point
+ * @param y the y coordinate of the point
+ */
 struct point_t {
     float_t x;
     float_t y;

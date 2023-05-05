@@ -12,11 +12,19 @@
 // Declares a set of function to compute common mathematical operations. 
 #include <math.h>
 
-// The maximum steering value for a left turn
-#define MAX_LEFT_STEERING_VAL 0.290888f
+// The maximum absolute steering value
+#define MAX_ABS_STEERING_VAL 0.290888f
 
-// The maximum steering value for a right turn
-#define MAX_RIGHT_STEERING_VAL -MAX_LEFT_STEERING_VAL
+// Output value of no steering angle
+#define NO_ANGLE 0.0f
+// The threshold to pass for calculateSteering to output something non-zero
+#define ZERO_THRESHOLD 5.0f
+// The threshold to pass for calculateSteering to output MAX_ABS_STEERING_ANGLE
+#define MAX_THRESHOLD 40.0f
+
+// The fraction that the origin's y coordinate
+// should be offset by
+#define ORIGIN_Y_OFFSET 0.2f
 
 /**
  * Struct representing a linear mathematical functions.
@@ -43,6 +51,15 @@ struct point_t {
     _Float32 x;
     _Float32 y;
 };
+
+// The width of the frame being processed
+int32_t width;
+
+// The height of the frame being processed
+int32_t height;
+
+// The origin of the car heading
+point_t origin;
 
 // The coefficient for a slope with infinite inclination
 const _Float32 INF_SLOPE = std::numeric_limits<_Float32>::max();
@@ -87,11 +104,34 @@ point_t getIntersect(line_t f, line_t g);
 
 _Float32 getAngle(point_t origin, point_t p);
 
+/**
+ * Calculates the steering angle value based on the
+ * data passed
+ * 
+ * @param data the cone data to perform calculations on
+ * @return a steering angle value between -MAX_ABS_STEERING_VAL
+ * and MAX_ABS_STEERING_VAL
+ */
 _Float32 calculateSteering(pos_api::data_t data);
 
 // Main entry point
 int32_t main(int32_t argc, char **argv)
 {
+    auto cmdargs = cluon::getCommandlineArguments(argc, argv);
+    if (!cmdargs.count("width") || !cmdargs.count("height"))
+    {
+        std::cerr << argv[0] << " calculates a steering value based on cone data received through shared memory." << std::endl;
+        std::cerr << "Usage:   " << argv[0] << " --width=<width of frame> --height=<height of frame>" << std::endl;
+        std::cerr << "         --width:  width of the frame" << std::endl;
+        std::cerr << "         --height: height of the frame" << std::endl;
+        std::cerr << "Example: " << argv[0] << " --width=640 --height=480" << std::endl;
+        return 1;
+    }
+
+    width = stoi(cmdargs["width"]);
+    height = stoi(cmdargs["height"]);
+    origin = {height * (1.0f - ORIGIN_Y_OFFSET), (_Float32) width / 2.0f};
+
     // Attach an exit handler to the ^C event
     signal(SIGINT, handleExit);
     // Attach the exit handler to the process termination event
@@ -128,7 +168,10 @@ int32_t main(int32_t argc, char **argv)
     {
         pos_api::data_t d = pos_api::get();
 
-        std::cout << "@ <t:" << d.now.seconds << "." << d.now.micros << ">" << std::endl;
+        _Float32 outputVal = calculateSteering(d);
+
+        std::cout << "group_13;" << d.vidTimestamp.seconds << "." << d.vidTimestamp.micros
+                  << ";" << outputVal << std::endl;
     }
 
     return 0;
@@ -167,7 +210,7 @@ point_t getIntersect(line_t f, line_t g)
 
     if (f.coefficient == INF_SLOPE && g.coefficient == INF_SLOPE)
     {
-        // TODO: return origin
+        return origin;
     }
     else if (f.coefficient == INF_SLOPE)
     {
@@ -206,4 +249,35 @@ _Float32 getAngle(point_t origin, point_t p) {
     // degrees will point straight down
     angle = fmod(angle + 90.0f, 360.0f) - 180.0f;
     return angle;
+}
+
+_Float32 calculateSteering(pos_api::data_t data)
+{
+    line_t bLine = getLineFromCones(data.bClose, data.bFar);
+    line_t yLine = getLineFromCones(data.yClose, data.yFar);
+
+    point_t intersect = getIntersect(bLine, yLine);
+
+    _Float32 angle = getAngle(origin, intersect);
+
+    bool right = angle < 0;
+    _Float32 magnitude = abs(angle);
+
+    if (0.0f <= magnitude && magnitude <= ZERO_THRESHOLD)
+    {
+        return 0.0f;
+    }
+    else if (ZERO_THRESHOLD < magnitude && magnitude <= MAX_THRESHOLD)
+    {
+        _Float32 val;
+        val = (magnitude - ZERO_THRESHOLD) / (MAX_THRESHOLD - ZERO_THRESHOLD);
+        val *= MAX_ABS_STEERING_VAL;
+        if (right)
+        {
+            val = -val;
+        }
+        return val;
+    }
+
+    return MAX_ABS_STEERING_VAL * (right ? -1 : 1);
 }

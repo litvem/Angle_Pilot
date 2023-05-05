@@ -49,6 +49,12 @@ struct point_t {
 // The coefficient for a slope with infinite inclination
 const _Float32 INF_SLOPE = std::numeric_limits<_Float32>::max();
 
+/**
+ * Exit handler that cleans up after the process
+ * if possible
+ * 
+ * @param sig the exit signal
+ */
 void handleExit(int sig);
 
 /**
@@ -90,6 +96,12 @@ int32_t main(int32_t argc, char **argv)
 {
     // Attach an exit handler to the ^C event
     signal(SIGINT, handleExit);
+    // Attach the exit handler to the process termination event
+    signal(SIGTERM, handleExit);
+    // Attach the exit handler to the ^/ event
+    signal(SIGQUIT, handleExit);
+    // Attach the exit handler to the hangup signal (kill terminal)
+    signal(SIGHUP, handleExit);
 
     try
     {
@@ -109,7 +121,8 @@ int32_t main(int32_t argc, char **argv)
                 std::cerr << "Oops! Something went wrong" << std::endl;
         }
 
-        handleExit(0);
+        handleExit(SIGTERM);
+        return 1;
     }
     
     // Endless loop, exit with ^C
@@ -128,7 +141,6 @@ void handleExit(int sig)
     std::clog << std::endl << "Cleaning up..." << std::endl;
     pos_api::clear();
     std::clog << "Exiting programme..." << std::endl;
-    exit(0);
 }
 
 line_t getLineFromCones(pos_api::cone_t close, pos_api::cone_t far)

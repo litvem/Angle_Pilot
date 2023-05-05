@@ -168,12 +168,12 @@ int32_t main(int32_t argc, char **argv) {
             while (od4.isRunning()) {
                 // OpenCV data structure to hold an image.
                 cv::Mat img;
-		std::pair<bool, cluon::data::TimeStamp> sampleTimePoint;
+		        std::pair<bool, cluon::data::TimeStamp> sampleTimePoint;
 /*-------------------------------- v ---------------------------------------------------------*/
                 // for the sliders to play with HSV values
                 cv::Mat inspectorImg;
 /*---------------------------------- ^-------------------------------------------------------*/
-
+                // test git
                 // Wait to receive a notification of a new frame.
                 sharedMemory->wait();
 

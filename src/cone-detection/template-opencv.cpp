@@ -168,7 +168,7 @@ int32_t main(int32_t argc, char **argv) {
             while (od4.isRunning()) {
                 // OpenCV data structure to hold an image.
                 cv::Mat img;
-
+		std::pair<bool, cluon::data::TimeStamp> sampleTimePoint;
 /*-------------------------------- v ---------------------------------------------------------*/
                 // for the sliders to play with HSV values
                 cv::Mat inspectorImg;
@@ -192,7 +192,7 @@ int32_t main(int32_t argc, char **argv) {
 /*------------------------------------------- v ----------------------------------------------*/
                     /* CREATE TIMESTAMP */
                     //create a std::pair class template that stores a boolean and a timestamp
-                    std::pair<bool, cluon::data::TimeStamp> sampleTimePoint;
+                    // std::pair<bool, cluon::data::TimeStamp> sampleTimePoint;
                     // call getTimeSTamp method to get current timestamp returned as a std::pair
                     sampleTimePoint = sharedMemory->getTimeStamp();
 

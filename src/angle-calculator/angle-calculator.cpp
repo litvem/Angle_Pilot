@@ -9,6 +9,11 @@
 // Used to get the limits of numeric types
 #include <limits>
 
+// Declares a set of function to compute common mathematical operations. 
+#include <math.h>
+
+#define PI 3.1415926535
+
 // The maximum steering value for a left turn
 #define MAX_LEFT_STEERING_VAL 0.290888f
 
@@ -176,4 +181,8 @@ point_t getIntersect(line_t f, line_t g)
     }
 
     return {x, y};
+}
+_Float32 getAngle(point_t origin, point_t p) {
+    _Float32 angle = atan((origin.y-p.y)/ (origin.x-p.x)) * 180 / PI;
+    return angle;
 }

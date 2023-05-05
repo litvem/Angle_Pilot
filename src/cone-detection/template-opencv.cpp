@@ -36,6 +36,7 @@ using namespace std;
 
 // Function declaration
 void handleExit(int sig);
+Mat maskImg(Mat imgHSV, Scalar lower_bound, Scalar upper_bound, Mat img_mask);
 
 
 int32_t main(int32_t argc, char **argv) {
@@ -166,8 +167,10 @@ int32_t main(int32_t argc, char **argv) {
 
             // Endless loop; end the program by pressing Ctrl-C.
             while (od4.isRunning()) {
+
                 // OpenCV data structure to hold an image.
                 cv::Mat img;
+                //create a std::pair class template that stores a boolean and a timestamp
 		        std::pair<bool, cluon::data::TimeStamp> sampleTimePoint;
 /*-------------------------------- v ---------------------------------------------------------*/
                 // for the sliders to play with HSV values
@@ -190,9 +193,7 @@ int32_t main(int32_t argc, char **argv) {
                     img = wrapped.clone();
 
 /*------------------------------------------- v ----------------------------------------------*/
-                    /* CREATE TIMESTAMP */
-                    //create a std::pair class template that stores a boolean and a timestamp
-                    // std::pair<bool, cluon::data::TimeStamp> sampleTimePoint;
+
                     // call getTimeSTamp method to get current timestamp returned as a std::pair
                     sampleTimePoint = sharedMemory->getTimeStamp();
 
@@ -220,17 +221,13 @@ int32_t main(int32_t argc, char **argv) {
                 cv::Scalar lower_yellow = cv::Scalar(15, 100, 120);
                 cv::Scalar upper_yellow = cv::Scalar(35, 243, 255);
 
-                /**
-                 * Filter by blue
-                 * The resulting blue_mask is a binary mask which will have 1's where the pixels fall in the range of lower_blue and upper_blue, meaning the pixels will be white there, and 0 where they don't
-                 *, which means the pixels will be black
-                 */
-                cv::Mat blue_mask;
-                cv::inRange(imgHSV, lower_blue, upper_blue, blue_mask);
+
+                // cv::inRange(imgHSV, lower_blue, upper_blue, blue_mask);
 
                 // filter by yellow, same procedure as for blue
+                cv::Mat blue_mask;
                 cv::Mat yellow_mask;
-                cv::inRange(imgHSV, lower_yellow, upper_yellow, yellow_mask);
+                //cv::inRange(imgHSV, lower_yellow, upper_yellow, yellow_mask);
 
 
                 /**
@@ -239,10 +236,12 @@ int32_t main(int32_t argc, char **argv) {
                  * imgHSv by the bitwise_and operation, the rest of the pixels in the result will automatically be set to black.
                  */
                 Mat result_blue, result_yellow; 
-                cv::bitwise_and(imgHSV, imgHSV, result_blue, blue_mask);
-                cv::bitwise_and(imgHSV, imgHSV, result_yellow, yellow_mask);
-            
-                
+                // cv::bitwise_and(imgHSV, imgHSV, result_blue, blue_mask);
+                // cv::bitwise_and(imgHSV, imgHSV, result_yellow, yellow_mask);
+
+                result_blue = maskImg(imgHSV, lower_blue, upper_blue, blue_mask);
+                result_yellow = maskImg(imgHSV, lower_yellow, upper_yellow, yellow_mask);
+
                 // create gray versions of the masked images
                 Mat result_blue_gray, result_yellow_gray;
                 cvtColor(result_blue, result_blue_gray, cv::COLOR_BGR2GRAY);
@@ -594,4 +593,22 @@ void handleExit(int sig)
     std::clog << "Exiting programme..." << std::endl;
     exit(0);
 }
+
+/**
+ * Create masks of the original image.
+ * The resulting blue/yellow mask is a binary mask which will have 1's where the pixels fall in the range of lower_bound and upper_bound, meaning the pixels will be white there, and 0 where they don't
+ * which means the pixels will be black there. 
+ * @param imgHSV the original image in HSV-format
+ * @param lower_bound the lower limit for the color range
+ * @param upper_bound the upper limit for the color range
+ * @param img_mask the resulting mask
+*/
+Mat maskImg(Mat imgHSV, Scalar lower_bound, Scalar upper_bound, Mat img_mask)
+{   
+    Mat result;      // image to store the result of the operations
+    cv::inRange(imgHSV, lower_bound, upper_bound, img_mask);
+    cv::bitwise_and(imgHSV, imgHSV, result, img_mask);
+    return result;
+}
+
 

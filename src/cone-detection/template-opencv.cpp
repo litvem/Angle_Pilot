@@ -190,6 +190,12 @@ int32_t main(int32_t argc, char **argv) {
                     img = wrapped.clone();
 
 /*------------------------------------------- v ----------------------------------------------*/
+                    /* CREATE TIMESTAMP */
+                    //create a std::pair class template that stores a boolean and a timestamp
+                    std::pair<bool, cluon::data::TimeStamp> sampleTimePoint;
+                    // call getTimeSTamp method to get current timestamp returned as a std::pair
+                    sampleTimePoint = sharedMemory->getTimeStamp();
+
                      // Copy image into cvMat structure.
                      // Be aware of that any code between lock/unlock is blocking
                      // the camera to provide the next frame. Thus, any
@@ -199,7 +205,6 @@ int32_t main(int32_t argc, char **argv) {
 /*----------------------------------------- ^------------------------------------------------*/
 
                 }
-                // TODO: Here, you can add some code to check the sampleTimePoint when the current frame was captured.
                 sharedMemory->unlock();
             
                 // Crop original image
@@ -408,6 +413,7 @@ int32_t main(int32_t argc, char **argv) {
                 uint16_t bFarX;
                 uint16_t bFarY;
 
+                // declare cone structs to hold the variables declared previously
                 pos_api::cone_t bClose{};
                 pos_api::cone_t bFar{};
                 pos_api::cone_t yClose{};
@@ -447,6 +453,11 @@ int32_t main(int32_t argc, char **argv) {
                         }
                     }
                 }
+
+                
+                 
+                // if there are atleast 2 contours, add the centroids of the biggest and second biggest contour to the
+                // cone structs declared previously.
                 if(contours_blue.size() > 1) {
                     bCloseX = centroids_blue[0].x;
                     bCloseY = centroids_blue[0].y;
@@ -456,6 +467,7 @@ int32_t main(int32_t argc, char **argv) {
                     pos_api::cone_t tmpFar{bFarX, bFarY};
                     memcpy(&bClose, &tmpClose, sizeof(pos_api::cone_t));
                     memcpy(&bFar, &tmpFar, sizeof(pos_api::cone_t));
+                // if there are < 2 contours found, send NO_CONE_POS to represent it.   
                 } else {
                     memcpy(&bFar, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
                     memcpy(&bClose, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
@@ -493,10 +505,10 @@ int32_t main(int32_t argc, char **argv) {
                         break;
                     }
                  }
-                 // If the contours_yellow vector is empty, no yellow cones are visible which most likely
-                 // means the car is in a curve. UINT16_MAX ( = 65535) will represent this. 
+                 
                 }
-
+                 
+                // Same procedure for yellow cones as for blue
                 if(contours_yellow.size() > 1) {
                     yCloseX = centroids_yellow[0].x;
                     yCloseY = centroids_yellow[0].y;
@@ -512,7 +524,7 @@ int32_t main(int32_t argc, char **argv) {
                 }
 
 
-                // comment
+                // Display the windows
                 namedWindow("Blue", CV_WINDOW_AUTOSIZE);
                 //moveWindow("Blue", 300, 200);               // make the windows appear at a fixed place on the screen when program runs
                 imshow("Blue", imgContours_blue);
@@ -520,6 +532,15 @@ int32_t main(int32_t argc, char **argv) {
                 //moveWindow("Yellow", 400, 300);
                 imshow("Yellow", imgContours_yellow);
 
+                // call the toMicroseconds function to get the timestamp converted to microseconds. 
+                // the std::get will get the second element in the sampleTimePoint std::pair, which is the timestamp
+                uint32_t seconds = sampleTimePoint.second.seconds();
+                uint32_t microseconds = cluon::time::toMicroseconds(std::get<1>(sampleTimePoint));
+
+                pos_api::timestamp_t vidTimeStamp {
+                    seconds,    
+                    microseconds
+                };
     
                 // Get the UNIX timestamp
                 cluon::data::TimeStamp t = cluon::time::now();
@@ -531,7 +552,7 @@ int32_t main(int32_t argc, char **argv) {
                     yClose,
                     yFar,
                     {t.seconds(), t.microseconds()},   
-                    {t.seconds(), t.microseconds()}   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
+                    vidTimeStamp   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
                 };
 
                 // put the cone data into the shared memory to be extracted by the steering calculator microservice

@@ -12,8 +12,6 @@
 // Declares a set of function to compute common mathematical operations. 
 #include <math.h>
 
-#define PI 3.1415926535
-
 // The maximum steering value for a left turn
 #define MAX_LEFT_STEERING_VAL 0.290888f
 
@@ -194,7 +192,18 @@ point_t getIntersect(line_t f, line_t g)
 
     return {x, y};
 }
+
 _Float32 getAngle(point_t origin, point_t p) {
-    _Float32 angle = atan((origin.y-p.y)/ (origin.x-p.x)) * 180 / PI;
+    // The angle in degrees from the line between the line
+    // between origin and p, and the x-axis
+    // Positive values -> counterclockwise rotation
+    _Float32 angle = atan((origin.y - p.y) / (origin.x - p.x)) * (180 / M_PI);
+
+    // Shift 0 degrees by 90 degrees clockwise and
+    // Subtract the angle by 180, yielding angles between
+    // -180 and 180 degrees.
+    // 0 degrees will point straight up while +/-180
+    // degrees will point straight down
+    angle = fmod(angle + 90.0f, 360.0f) - 180.0f;
     return angle;
 }

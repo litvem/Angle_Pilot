@@ -12,7 +12,7 @@ ADD ./src /opt/sources
 WORKDIR /opt/sources
 
 # Build the application
-RUN cd api && \
+RUN cd angle-calculator && \
     bash build.sh
 
 # Copy the final executable

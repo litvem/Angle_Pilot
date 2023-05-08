@@ -222,23 +222,14 @@ int32_t main(int32_t argc, char **argv) {
                 cv::Scalar upper_yellow = cv::Scalar(35, 243, 255);
 
 
-                // cv::inRange(imgHSV, lower_blue, upper_blue, blue_mask);
-
-                // filter by yellow, same procedure as for blue
+                // declare masks for blue and yellow
                 cv::Mat blue_mask;
                 cv::Mat yellow_mask;
-                //cv::inRange(imgHSV, lower_yellow, upper_yellow, yellow_mask);
 
-
-                /**
-                 * comparing the masks to original images. We are using bitwise_and operation on the same images (imgHSV). However, we are including
-                 * the blue and yellow mask, this means that only the pixels that are set to white in the blue or yellow mask will be evaluated in the coprresponding pixels of the 
-                 * imgHSv by the bitwise_and operation, the rest of the pixels in the result will automatically be set to black.
-                 */
+                // declare images that will hold the result of the masking operation
                 Mat result_blue, result_yellow; 
-                // cv::bitwise_and(imgHSV, imgHSV, result_blue, blue_mask);
-                // cv::bitwise_and(imgHSV, imgHSV, result_yellow, yellow_mask);
 
+                // create masks for blue and yellow
                 result_blue = maskImg(imgHSV, lower_blue, upper_blue, blue_mask);
                 result_yellow = maskImg(imgHSV, lower_yellow, upper_yellow, yellow_mask);
 
@@ -246,6 +237,7 @@ int32_t main(int32_t argc, char **argv) {
                 Mat result_blue_gray, result_yellow_gray;
                 cvtColor(result_blue, result_blue_gray, cv::COLOR_BGR2GRAY);
                 cvtColor(result_yellow, result_yellow_gray, cv::COLOR_BGR2GRAY);
+   
    
                 /**
                  * Detect if car is coing clockwise or not.   
@@ -323,7 +315,6 @@ int32_t main(int32_t argc, char **argv) {
                  */
                 findContours(result_blue_gray, contours_blue, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
                 findContours(result_yellow_gray, contours_yellow, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-                //cout << "----------------" << endl;
                 
                 // selection sort on blue contours, descending order
                 for(size_t i = 0; i < contours_blue.size(); i++) {
@@ -340,9 +331,7 @@ int32_t main(int32_t argc, char **argv) {
                         contours_blue[i] = contours_blue[maxIndex];
                         contours_blue[maxIndex] = temp;
                     }
-                    //cout << "Contour area blue[" << i << "] = " << contourArea(contours_blue[i]) << endl;                                                                                                                                                                                                                                                                                                
                 }
-               // cout << "---------------" << endl;
 
                 // selection sort on yellow contours, descending order
                  for(size_t i = 0; i < contours_yellow.size(); i++) {
@@ -359,9 +348,7 @@ int32_t main(int32_t argc, char **argv) {
                         contours_yellow[i] = contours_yellow[maxIndex];
                         contours_yellow[maxIndex] = temp;
                     }
-                    //cout << "Contour area yellow[" << i << "] = " << contourArea(contours_yellow[i]) << endl;                                                                                                                                                                                                                                                                                                
                 }
-                //cout << "---------------" << endl;
 
                 /** 
                  * Initializes the imgContours matrices to be the same size as their gray versions and with all pixels set to 0 i.e. black
@@ -607,6 +594,10 @@ Mat maskImg(Mat imgHSV, Scalar lower_bound, Scalar upper_bound, Mat img_mask)
 {   
     Mat result;      // image to store the result of the operations
     cv::inRange(imgHSV, lower_bound, upper_bound, img_mask);
+    
+    // comparing the masks to original images. We are using bitwise_and operation on the same images (imgHSV). However, we are including
+    // the blue and yellow mask, this means that only the pixels that are set to white in the blue or yellow mask will be evaluated in the coprresponding pixels of the 
+    // imgHSV by the bitwise_and operation, the rest of the pixels in the result will automatically be set to black.
     cv::bitwise_and(imgHSV, imgHSV, result, img_mask);
     return result;
 }

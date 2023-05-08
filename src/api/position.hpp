@@ -194,6 +194,16 @@ namespace pos_api {
      * @returns the cone data from a producer
      */
     data_t get();
+
+    /**
+     * Checks if two cones are equal in terms of position
+     * 
+     * @param c1 the first cone to compare
+     * @param c2 the second cone to compare
+     * @returns a bool for whether the two cones are equal
+     * or not
+     */
+    bool isEqual(const cone_t c1, const cone_t c2);
 } // !namespace pos_api
 
 #endif // !DIT639_2023_GROUP_13_POSITION_HPP

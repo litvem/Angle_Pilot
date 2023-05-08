@@ -53,16 +53,26 @@ struct point_t {
 };
 
 // The width of the frame being processed
-int32_t width;
+uint16_t width;
 
 // The height of the frame being processed
-int32_t height;
+uint16_t height;
 
 // The origin of the car heading
 point_t origin;
 
+// The default edge for the right side
+// when no line can be drawn
+line_t rightDefault;
+// The default edge for the left side
+// when no line can be drawn
+line_t leftDefault;
+
 // The coefficient for a slope with infinite inclination
 const _Float32 INF_SLOPE = std::numeric_limits<_Float32>::max();
+
+// The slope for NO_CONE_POS
+const line_t NO_CONE_LINE = {pos_api::NO_CONE_POS.posX, pos_api::NO_CONE_POS.posY};
 
 /**
  * Exit handler that cleans up after the process
@@ -104,6 +114,8 @@ point_t getIntersect(line_t f, line_t g);
 
 _Float32 getAngle(point_t origin, point_t p);
 
+void determineEdges(line_t *f, line_t *g);
+
 /**
  * Calculates the steering angle value based on the
  * data passed
@@ -128,9 +140,35 @@ int32_t main(int32_t argc, char **argv)
         return 1;
     }
 
-    width = stoi(cmdargs["width"]);
-    height = stoi(cmdargs["height"]);
+    {
+        int32_t tmpWidth = stoi(cmdargs["width"]);
+        int32_t tmpHeight = stoi(cmdargs["height"]);
+
+        if (tmpWidth > UINT16_MAX || tmpHeight > UINT16_MAX ||
+            tmpWidth < 0 || tmpHeight < 0)
+        {
+            std::cerr << "Width or height out of bounds" << std::endl;
+            return 1;
+        }
+        width = tmpWidth;
+        height = tmpHeight;
+    }
     origin = {height * (1.0f - ORIGIN_Y_OFFSET), (_Float32) width / 2.0f};
+
+    // Get the default right edge between the top center
+    // and bottom right corner
+    rightDefault = getLineFromCones(
+        {width, height},
+        {(uint16_t) (width / 2.0f), 0}
+    );
+
+    // Get the default right edge between the top center
+    // and bottom left corner
+    leftDefault = getLineFromCones(
+        {0, height},
+        {(uint16_t) (width / 2.0f), 0}
+    );
+
 
     // Attach an exit handler to the ^C event
     signal(SIGINT, handleExit);
@@ -184,8 +222,13 @@ void handleExit(int sig)
     std::clog << "Exiting programme..." << std::endl;
 }
 
-line_t getLineFromCones(pos_api::cone_t close, pos_api::cone_t far)
+line_t getLineFromCones(const pos_api::cone_t close, const pos_api::cone_t far)
 {
+    // Check if there is a cone at all
+    if (pos_api::isEqual(close, pos_api::NO_CONE_POS))
+    {
+        return NO_CONE_LINE;
+    }
     // Catch division by 0 (infinite slope)
     if (far.posX == close.posX)
     {
@@ -201,7 +244,7 @@ line_t getLineFromCones(pos_api::cone_t close, pos_api::cone_t far)
     return {coeff, constant};
 }
 
-point_t getIntersect(line_t f, line_t g)
+point_t getIntersect(const line_t f, const line_t g)
 {
     // x coordinate of the intersect
     _Float32 x;
@@ -236,7 +279,7 @@ point_t getIntersect(line_t f, line_t g)
     return {x, y};
 }
 
-_Float32 getAngle(point_t origin, point_t p) {
+_Float32 getAngle(const point_t origin, const point_t p) {
     // The angle in degrees from the line between the line
     // between origin and p, and the x-axis
     // Positive values -> counterclockwise rotation
@@ -251,10 +294,56 @@ _Float32 getAngle(point_t origin, point_t p) {
     return angle;
 }
 
-_Float32 calculateSteering(pos_api::data_t data)
+bool isEqual(const line_t f, const line_t g)
+{
+    return f.coefficient == g.coefficient && f.constant == g.constant;
+}
+
+void determineEdges(line_t *const f, line_t *const g)
+{
+    line_t _f = *f;
+    line_t _g = *g;
+
+    bool fNoCone = isEqual(_f, NO_CONE_LINE);
+    bool gNoCone = isEqual(_g, NO_CONE_LINE);
+
+    if (fNoCone && gNoCone)
+    {
+        *f = leftDefault;
+        *g = rightDefault;
+    }
+    else if (fNoCone)
+    {
+        if (_g.coefficient < 0 ||
+            _g.coefficient == INF_SLOPE && _g.constant > origin.x)
+        {
+            *f = leftDefault;
+        }
+        else
+        {
+            *f = rightDefault;
+        }
+    }
+    else if (gNoCone)
+    {
+        if (_f.coefficient < 0 ||
+            _f.coefficient == INF_SLOPE && _f.constant > origin.x)
+        {
+            *g = leftDefault;
+        }
+        else
+        {
+            *g = rightDefault;
+        }
+    }
+}
+
+_Float32 calculateSteering(const pos_api::data_t data)
 {
     line_t bLine = getLineFromCones(data.bClose, data.bFar);
     line_t yLine = getLineFromCones(data.yClose, data.yFar);
+
+    determineEdges(&bLine, &yLine);
 
     point_t intersect = getIntersect(bLine, yLine);
 

@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  consumer:
+    build:
+      context: .
+      dockerfile: ./consumer.Dockerfile
+    ports:
+      - "8001:8001"
+    depends_on:
+      - opendlv-video-h264-decoder
+    environment:
+      - DISPLAY=:1
+      - LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+
+  producer:
+    build:
+      context: .
+      dockerfile: ./producer.Dockerfile
+    depends_on:
+      - opendlv-video-h264-decoder
+
+  OpenDLV-Vehicle-View:
+    build:
+      context: .
+      dockerfile: ./OpenDLV-Vehicle-View.Dockerfile
+    ports:
+      - "8080:80/udp"
+      - "8081:81/udp"
+    environment:
+      - UDP_PORT_IN=8080
+      - UDP_PORT_OUT=8081
+
+  opendlv-video-h264-decoder:
+    build:
+      context: .
+      dockerfile: ./opendlv-video-h264-decoder.Dockerfile
+    ports:
+      - "8080:8080/udp"
+      - "8081:8081/udp"
+    environment:
+      - UDP_PORT_IN=8080
+      - UDP_PORT_OUT=8081
+      - "8081:8081/udp"
+    environment:
+      - UDP_PORT_IN=8080
+      - UDP_PORT_OUT=8081

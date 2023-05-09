@@ -28,5 +28,6 @@ RUN cd / && \
 FROM scratch
 LABEL Author="Bao Quan Lindgren <guslindgba@student.gu.se>"
 
-COPY --from=builder /angle-calculator /
-ENTRYPOINT [ "/angle-calculator" ]
+WORKDIR /usr/bin
+COPY --from=builder /angle-calculator .
+ENTRYPOINT [ "/usr/bin/angle-calculator" ]

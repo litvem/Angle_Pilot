@@ -32,12 +32,24 @@
 
 using namespace cv;
 using namespace std;
+using std::cout;
+using std::endl;
 
 
 // Function declaration
 void handleExit(int sig);
+
+// masking images
 Mat maskImg(Mat imgHSV, Scalar lower_bound, Scalar upper_bound, Mat img_mask);
 
+//sorting contours
+void sortContours(std::vector<std::vector<Point>>& contours);
+
+// find the centroids
+void findCentroids(std::vector<Moments>& moments, std::vector<Point2f>& centroids, std::vector<std::vector<Point>>& contours);
+
+// draw lines and rectangles around shapes
+void drawPath(std::vector<std::vector<Point>> contours, std::vector<Point2f> centroids);
 
 int32_t main(int32_t argc, char **argv) {
 
@@ -158,7 +170,7 @@ int32_t main(int32_t argc, char **argv) {
             // https://github.com/chrberger/libcluon/blob/master/libcluon/testsuites/TestEnvelopeConverter.cpp#L31-L40
             std::lock_guard<std::mutex> lck(gsrMutex);
             gsr = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(env));
-            std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
+            //std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
         };
 
         int frameCount = 0;        // to count frames
@@ -321,39 +333,19 @@ int32_t main(int32_t argc, char **argv) {
             findContours(result_blue_gray, contours_blue, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
             findContours(result_yellow_gray, contours_yellow, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
             
-            // selection sort on blue contours, descending order
-            for(size_t i = 0; i < contours_blue.size(); i++) {
-                    size_t maxIndex = i;
-                    double maxArea = contourArea(contours_blue[maxIndex]);
-                    for(size_t j = i + 1; j < contours_blue.size(); j++) {
-                    double currentArea = contourArea(contours_blue[j]);
-                    if(currentArea > maxArea) {
-                        maxIndex = j;
-                    }
-                    } 
-                    if(maxIndex != i) {
-                    vector<Point> temp = contours_blue[i];
-                    contours_blue[i] = contours_blue[maxIndex];
-                    contours_blue[maxIndex] = temp;
-                }
-            }
-
-            // selection sort on yellow contours, descending order
-                for(size_t i = 0; i < contours_yellow.size(); i++) {
-                    size_t maxIndex = i;
-                    double maxArea = contourArea(contours_yellow[maxIndex]);
-                    for(size_t j = i + 1; j < contours_yellow.size(); j++) {
-                    double currentArea = contourArea(contours_yellow[j]);
-                    if(currentArea > maxArea) {
-                        maxIndex = j;
-                    }
-                    } 
-                    if(maxIndex != i) {
-                    vector<Point> temp = contours_yellow[i];
-                    contours_yellow[i] = contours_yellow[maxIndex];
-                    contours_yellow[maxIndex] = temp;
-                }
-            }
+           
+            cout << "----- blue ----" << endl;
+            sortContours(contours_blue);
+              for(size_t i = 0; i < contours_blue.size(); i++) {
+                  cout << "area of  [" << i << "] : " << contourArea(contours_blue[i]) << endl;
+                 }
+             cout << "----- blue ----" << endl;
+             cout << "----- yellow ----" << endl;
+            sortContours(contours_yellow);
+              for(size_t i = 0; i < contours_yellow.size(); i++) {
+                  cout << "area of  [" << i << "] : " << contourArea(contours_yellow[i]) << endl;
+                 }
+            cout << "----- yellow ----" << endl;
 
             /** 
              * Initializes the imgContours matrices to be the same size as their gray versions and with all pixels set to 0 i.e. black
@@ -369,34 +361,22 @@ int32_t main(int32_t argc, char **argv) {
              * Moments are objects that will contain some information about each shape. We can use it to calculate area, orientation, size etc.,
              * in our case we are interested in the centroid = geometric center of the object.
              */ 
-            std::vector<Moments> moms_blue(contours_blue.size());
-            for(size_t i = 0; i < contours_blue.size(); i++) {
-                moms_blue[i] = moments(contours_blue[i]);
-            }
-            // we loop through the moments and perform operations on them to get the centroid values 
-            std::vector<Point2f> centroids_blue(contours_blue.size());
-            for(size_t i = 0; i < contours_blue.size(); i++) {
-                    // m00: represents the total area of the contour. 
-                    // m10: represents the sum of the x coordinates of all the pixels in the shape. 
-                    // m01: represents the sum of the y coordinatese of all pixels in the shape. 
-                    // m10/m00 gives us the average x coordinate of the shape which is also the x coordinate of the centroid
-                    // m01/m00 gives us the average y coordinate of the shape which is also the y coordinate of the centroid  
-                    // we create a Point out of the centroid x and y coordinates and store in centroids vector
-                    // m10, m00, and m01 operations return double, so we cast to float
-                centroids_blue[i] = Point2f(static_cast<float>(moms_blue[i].m10/moms_blue[i].m00), static_cast<float>(moms_blue[i].m01/moms_blue[i].m00));
-            }
+             std::vector<Moments> moms_blue(contours_blue.size());
+             std::vector<Moments> moms_yellow(contours_yellow.size());
+             // declaration of a vector of Points to hold the centroids
+             std::vector<Point2f> centroids_blue(contours_blue.size());
+             std::vector<Point2f> centroids_yellow(contours_yellow.size());
 
-            // We do the same thing for the yellow contours
-            std::vector<Moments> moms_yellow(contours_yellow.size());
-            for(size_t i = 0; i < contours_yellow.size(); i++) {
-                moms_yellow[i] = moments(contours_yellow[i]);
-            }
-            // centroids yellow
-            std::vector<Point2f> centroids_yellow(contours_yellow.size());
-            for(size_t i = 0; i < contours_yellow.size(); i++) {
-                
-                centroids_yellow[i] = Point2f(static_cast<float>(moms_yellow[i].m10/moms_yellow[i].m00), static_cast<float>(moms_yellow[i].m01/moms_yellow[i].m00));
-            }
+
+            //cout << "Blue: ----" << endl;
+            // Calculate centroids of each blue shape
+            findCentroids(moms_blue, centroids_blue, contours_blue);
+            //cout << " -----" << endl;
+            // Calculate centroids of each yellow shape
+            //cout << "yellow: ----" << endl;
+
+            findCentroids(moms_yellow, centroids_yellow, contours_yellow);
+            // cout << "----" << endl;
 
             // declare variables to hold coordinates of blue cones
             uint16_t bCloseX;
@@ -555,7 +535,7 @@ int32_t main(int32_t argc, char **argv) {
             // If you want to access the latest received ground steering, don't forget to lock the mutex:
             {
                 std::lock_guard<std::mutex> lck(gsrMutex);
-                std::cout << "main: groundSteering = " << gsr.groundSteering() << std::endl;
+                //std::cout << "main: groundSteering = " << gsr.groundSteering() << std::endl;
             }
 
 
@@ -606,5 +586,55 @@ Mat maskImg(Mat imgHSV, Scalar lower_bound, Scalar upper_bound, Mat img_mask)
     cv::bitwise_and(imgHSV, imgHSV, result, img_mask);
     return result;
 }
+
+/**
+ * Sorts the vectors holding the contours in descending order using selection sort.
+ * @param contours the vector of contours to be sorted
+*/
+ void sortContours(std::vector<std::vector<Point>>& contours) 
+{   
+    for(size_t i = 0; i < contours.size(); i++) {
+        size_t maxIndex = i;
+        double maxArea = contourArea(contours[maxIndex]);
+        for(size_t j = i + 1; j < contours.size(); j++) {
+        double currentArea = contourArea(contours[j]);
+        if(currentArea > maxArea) {
+            maxIndex = j;
+            maxArea = contourArea(contours[j]);
+        }
+        }
+        if(maxIndex != i) {
+        vector<Point> temp = contours[i];
+        contours[i] = contours[maxIndex];
+        contours[maxIndex] = temp;
+        }
+
+    }
+    // for(size_t i = 0; i < contours.size(); i++) {
+    //     cout << "area of [" << i << "] : " << contourArea(contours[i]) << endl;
+    // }
+}
+
+void findCentroids(std::vector<Moments>& moms, std::vector<Point2f>& centroids, std::vector<std::vector<Point>>& contours)
+{
+    for(size_t i = 0; i < contours.size(); i++) {
+        moms[i] = moments(contours[i]);
+    }
+    // we loop through the moments and perform operations on them to get the centroid values 
+    for(size_t i = 0; i < contours.size(); i++) {
+            // m00: represents the total area of the contour. 
+            // m10: represents the sum of the x coordinates of all the pixels in the shape. 
+            // m01: represents the sum of the y coordinatese of all pixels in the shape. 
+            // m10/m00 gives us the average x coordinate of the shape which is also the x coordinate of the centroid
+            // m01/m00 gives us the average y coordinate of the shape which is also the y coordinate of the centroid  
+            // we create a Point out of the centroid x and y coordinates and store in centroids vector
+            // m10, m00, and m01 operations return double, so we cast to float
+        centroids[i] = Point2f(static_cast<float>(moms[i].m10/moms[i].m00), static_cast<float>(moms[i].m01/moms[i].m00));
+
+    }
+
+
+}
+
 
 

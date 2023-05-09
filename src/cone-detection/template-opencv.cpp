@@ -445,7 +445,7 @@ int32_t main(int32_t argc, char **argv) {
             // call the toMicroseconds function to get the timestamp converted to microseconds. 
             // the std::get will get the second element in the sampleTimePoint std::pair, which is the timestamp
             uint32_t seconds = sampleTimePoint.second.seconds();
-            uint32_t microseconds = cluon::time::toMicroseconds(std::get<1>(sampleTimePoint));
+            uint32_t microseconds = sampleTimePoint.second.microseconds();
 
             pos_api::timestamp_t vidTimeStamp {
                 seconds,    

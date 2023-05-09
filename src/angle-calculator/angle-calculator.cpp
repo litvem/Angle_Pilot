@@ -18,13 +18,13 @@
 // Output value of no steering angle
 #define NO_ANGLE 0.0f
 // The threshold to pass for calculateSteering to output something non-zero
-#define ZERO_THRESHOLD 5.0f
+#define ZERO_THRESHOLD 10.0f
 // The threshold to pass for calculateSteering to output MAX_ABS_STEERING_ANGLE
-#define MAX_THRESHOLD 40.0f
+#define MAX_THRESHOLD 50.0f
 
 // The fraction that the origin's y coordinate
 // should be offset by
-#define ORIGIN_Y_OFFSET 0.2f
+#define ORIGIN_Y_OFFSET 0.0f
 
 /**
  * Struct representing a linear mathematical functions.
@@ -69,7 +69,7 @@ line_t rightDefault;
 line_t leftDefault;
 
 // The coefficient for a slope with infinite inclination
-const _Float32 INF_SLOPE = std::numeric_limits<_Float32>::max();
+const _Float32 INF_SLOPE = 0.0f;
 
 // The slope for NO_CONE_POS
 const line_t NO_CONE_LINE = {pos_api::NO_CONE_POS.posX, pos_api::NO_CONE_POS.posY};
@@ -183,20 +183,20 @@ int32_t main(int32_t argc, char **argv)
         width = tmpWidth;
         height = tmpHeight;
     }
-    origin = {height * (1.0f - ORIGIN_Y_OFFSET), (_Float32) width / 2.0f};
+    origin = {(_Float32) width / 2.0f, height * ORIGIN_Y_OFFSET};
 
     // Get the default right edge between the top center
     // and bottom right corner
     rightDefault = getLineFromCones(
-        {width, height},
-        {(uint16_t) (width / 2.0f), 0}
+        {(uint16_t) (width - 1), 0},
+        {(uint16_t) ((width / 4.0f) * 3.0f), height}
     );
 
     // Get the default right edge between the top center
     // and bottom left corner
     leftDefault = getLineFromCones(
-        {0, height},
-        {(uint16_t) (width / 2.0f), 0}
+        {1, 0},
+        {(uint16_t) (width / 4.0f), height}
     );
 
 
@@ -238,12 +238,71 @@ int32_t main(int32_t argc, char **argv)
 
         _Float32 outputVal = calculateSteering(d);
 
+        // std::clog << "bClose @ (" << d.bClose.posX << ", " << d.bClose.posY << ")" << std::endl;
+        // std::clog << "bFar @ (" << d.bFar.posX << ", " << d.bFar.posY << ")" << std::endl;
+        // std::clog << "yClose @ (" << d.yClose.posX << ", " << d.yClose.posY << ")" << std::endl;
+        // std::clog << "yFar @ (" << d.yFar.posX << ", " << d.yFar.posY << ")" << std::endl;
+
         std::cout << "group_13;" << d.vidTimestamp.seconds << "." << d.vidTimestamp.micros
                   << ";" << outputVal << std::endl;
     }
 
     return 0;
 }
+
+
+/*
+int32_t main(int32_t argc, char **argv)
+{
+    origin = {5, 0};
+    while (true)
+    {
+        int16_t y1x, y1y, y2x, y2y, b1x, b1y, b2x, b2y;
+        std::string input;
+        std::cout << "yellow cone 1 x coordinate: ";
+        std::cin >> input;
+        y1x = stoi(input);
+        std::cout << "yellow cone 1 y coordinate: ";
+        std::cin >> input;
+        y1y = stoi(input);
+        std::cout << "yellow cone 2 x coordinate: ";
+        std::cin >> input;
+        y2x = stoi(input);
+        std::cout << "yellow cone 2 y coordinate: ";
+        std::cin >> input;
+        y2y = stoi(input);
+        std::cout << "blue cone 1 x coordinate: ";
+        std::cin >> input;
+        b1x = stoi(input);
+        std::cout << "blue cone 1 y coordinate: ";
+        std::cin >> input;
+        b1y = stoi(input);
+        std::cout << "blue cone 2 x coordinate: ";
+        std::cin >> input;
+        b2x = stoi(input);
+        std::cout << "blue cone 2 y coordinate: ";
+        std::cin >> input;
+        b2y = stoi(input);
+
+        _Float32 val = calculateSteering({
+            {b1x, b1y},
+            {b2x, b2y},
+            {y1x, y1y},
+            {y2x, y2y},
+            {0, 0},
+            {0, 0}
+        });
+
+        std::cout << val << std::endl;
+    }
+    while (true)
+    {
+        std::string in;
+        std::cin >> in;
+        std::cout << "arctan(" << in << ") = " << atan(stoi(in)) * (180 / M_PI) << " deg" << std::endl;
+    }
+}
+ */
 
 void handleExit(int sig)
 {
@@ -267,9 +326,11 @@ line_t getLineFromCones(const pos_api::cone_t close, const pos_api::cone_t far)
     }
 
     // dy/dx
-    _Float32 coeff = (far.posY - close.posY) / (far.posX - close.posX);
+    _Float32 coeff = (_Float32) (far.posY - close.posY) / (_Float32) (far.posX - close.posX);
     // y1 - ax1
     _Float32 constant = far.posY - (coeff * far.posX);
+
+    // std::cout << "y = " << coeff << "x + " << constant << std::endl;
 
     return {coeff, constant};
 }
@@ -285,7 +346,7 @@ point_t getIntersect(const line_t f, const line_t g)
     // right in between the lines if they are vertical
     if (f.coefficient == INF_SLOPE && g.coefficient == INF_SLOPE)
     {
-        return {f.constant - g.constant, 0};
+        return {f.constant - g.constant, 0.0f};
     }
     // If one of the lines is vertical,
     // take that into consideration
@@ -310,7 +371,7 @@ point_t getIntersect(const line_t f, const line_t g)
         // x = (bg - bf) / (mf - mg)
         x = (g.constant - f.constant) / (f.coefficient - g.coefficient);
 
-        y = f.coefficient * x;
+        y = f.coefficient * x + f.constant;
     }
 
     return {x, y};
@@ -327,7 +388,7 @@ _Float32 getAngle(const point_t origin, const point_t p) {
     // -180 and 180 degrees.
     // 0 degrees will point straight up while +/-180
     // degrees will point straight down
-    angle = fmod(angle + 90.0f, 360.0f) - 180.0f;
+    angle = fmod(angle + 180.0f, 180.0f) - 90.0f;
     return angle;
 }
 
@@ -355,7 +416,7 @@ void determineEdges(line_t *const f, line_t *const g)
         *g = rightDefault;
     }
     // If f has no cones...
-    else if (fNoCone)
+    else if (fNoCone && !gNoCone)
     {
         // Check if g is on the right or left side
         // and then assume f
@@ -370,7 +431,7 @@ void determineEdges(line_t *const f, line_t *const g)
         }
     }
     // If g has no cones...
-    else if (gNoCone)
+    else if (gNoCone && !fNoCone)
     {
         // Check if f is on the right or left side
         // and then assume g
@@ -402,10 +463,14 @@ _Float32 calculateSteering(const pos_api::data_t data)
 
     // The intersect between the two lines, if there is one
     point_t intersect = getIntersect(bLine, yLine);
+    // std::clog << "intersect @ (" << intersect.x << ", " << intersect.y << ")" << std::endl;
 
     // The angle between a horizontal line and
     // the line between origin and intersect
     _Float32 angle = getAngle(origin, intersect);
+
+    // std::clog << "origin @ (" << origin.x << ", " << origin.y << ")" << std::endl;
+    // std::clog << angle << std::endl;
 
     // A check for whether the angle is on the right side
     bool right = angle < 0;

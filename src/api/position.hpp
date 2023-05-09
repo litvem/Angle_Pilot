@@ -85,8 +85,8 @@ namespace pos_api {
 
     // Constant used when no cone position is available
     const cone_t NO_CONE_POS{
-        UINT16_MAX,
-        UINT16_MAX
+        0,
+        0
     };
 
     /**

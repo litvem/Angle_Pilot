@@ -49,7 +49,7 @@ void sortContours(std::vector<std::vector<Point>>& contours);
 void findCentroids(std::vector<Moments>& moments, std::vector<Point2f>& centroids, std::vector<std::vector<Point>>& contours);
 
 // draw lines and rectangles around shapes
-void drawPath(std::vector<std::vector<Point>> contours, std::vector<Point2f> centroids);
+void drawPath(std::vector<std::vector<Point>>& contours, std::vector<Point2f>& centroids, Mat imgContours, Mat img);
 
 int32_t main(int32_t argc, char **argv) {
 
@@ -72,6 +72,7 @@ int32_t main(int32_t argc, char **argv) {
     }
 
     //---------------------------------------
+    // signal methods to handle termination events such as ctrl + C or closing the terminal window
     signal(SIGINT, handleExit);
     signal(SIGTERM, handleExit);
     signal(SIGQUIT, handleExit);
@@ -390,50 +391,17 @@ int32_t main(int32_t argc, char **argv) {
             pos_api::cone_t yClose{};
             pos_api::cone_t yFar{};
             
-            if(contours_blue.size() != 0) {
-            // loop through the contours and draw them out on an image
-                for(size_t i = 0; i < contours_blue.size(); i++) {
-                    
-                    // draws the contours out on the imgContours_blue image.
-                    drawContours(imgContours_blue, contours_blue, (int)i, Scalar(0, 255, 0), 1);
-                    
-                    // boundingRect finds the smallest rectangle that completely encloses a given contour or set of points. 
-                    // boundingRect returns the x and y coordinates of the top left corner as one Point, the width and the height and stores it in a Rect object.
-                    cv::Rect rectAroundCone = cv::boundingRect(contours_blue[i]);
-                
-                    // We try to ignore the smallest contours spotted by only drawing rectangles for Rects that have width and height > 5 to reduce noise
-                    if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
-                        
-                        // draw a rectangle with the Rect as base
-                        cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
-                        
-                        // We store the centroid coordinates of the largest contour (i.e. centroids_blue[i - 1]) and the second largest contour (i.e centroids_blue[i])
-                        // in variables to send to shared memory later. And we draw a line between the cones. 
-                        if(i == 1) {
-                            line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i].x, centroids_blue[i].y), cv::Scalar(0, 0, 255), 2);
-                            // We need to know if the car is goind clockwise or not to draw the second line correctly
-                            if(clockwise) {
-                                // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x + 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                            } else {
-                                // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x - 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                            }
-                        //since we only care about sending data about the closeest two cones, no need to continue loop if i > 1   
-                        } else if(i > 1) {
-                            break;
-                        }
-                    }
-                }
-            }
 
-            
-                
+            drawPath(contours_blue, centroids_blue, imgContours_blue, img);
+            drawPath(contours_yellow, centroids_yellow, imgContours_yellow, img);
+    
             // if there are atleast 2 contours, add the centroids of the biggest and second biggest contour to the
             // cone structs declared previously.
             if(contours_blue.size() > 1) {
                 bCloseX = centroids_blue[0].x;
-                bCloseY = centroids_blue[0].y;
+                bCloseY = 110 - centroids_blue[0].y;
                 bFarX = centroids_blue[1].x;
-                bFarY = centroids_blue[1].y;
+                bFarY = 110 - centroids_blue[1].y;
                 pos_api::cone_t tmpClose{bCloseX, bCloseY};
                 pos_api::cone_t tmpFar{bFarX, bFarY};
                 memcpy(&bClose, &tmpClose, sizeof(pos_api::cone_t));
@@ -449,42 +417,13 @@ int32_t main(int32_t argc, char **argv) {
                 uint16_t yCloseY;
                 uint16_t yFarX;
                 uint16_t yFarY;
-
-                if(contours_yellow.size() != 0) {
-                // we do the same operations for the yellow cones as for the blue ones
-                for(size_t i = 0; i < contours_yellow.size(); i++) {
-                
-                //draw contours
-                drawContours(imgContours_yellow, contours_yellow, (int)i, Scalar(0, 255, 0), 1);
-                
-                // get Rect object
-                cv::Rect rectAroundCone = cv::boundingRect(contours_yellow[i]);
-
-                // if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
-                // draw rectangle
-                cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
-                
-                // same procedure for yellow as for blue
-                if(i == 1) {
-                    line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i].x, centroids_yellow[i].y), cv::Scalar(0, 0, 255), 2);
-                    if(clockwise) {
-                        // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x - 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                    } else {
-                        // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x + 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                    }
-                } else if(i > 1) {
-                    break;
-                }
-                }
-                
-            }
-                
+    
             // Same procedure for yellow cones as for blue
             if(contours_yellow.size() > 1) {
                 yCloseX = centroids_yellow[0].x;
-                yCloseY = centroids_yellow[0].y;
+                yCloseY = 110 - centroids_yellow[0].y;
                 yFarX = centroids_yellow[1].x;
-                yFarY = centroids_yellow[1].y;
+                yFarY = 110 - centroids_yellow[1].y;
                 pos_api::cone_t tmpClose{yCloseX, yCloseY};
                 pos_api::cone_t tmpFar{yFarX, yFarY};
                 memcpy(&yClose, &tmpClose, sizeof(pos_api::cone_t));
@@ -610,9 +549,7 @@ Mat maskImg(Mat imgHSV, Scalar lower_bound, Scalar upper_bound, Mat img_mask)
         }
 
     }
-    // for(size_t i = 0; i < contours.size(); i++) {
-    //     cout << "area of [" << i << "] : " << contourArea(contours[i]) << endl;
-    // }
+   
 }
 
 void findCentroids(std::vector<Moments>& moms, std::vector<Point2f>& centroids, std::vector<std::vector<Point>>& contours)
@@ -632,8 +569,44 @@ void findCentroids(std::vector<Moments>& moms, std::vector<Point2f>& centroids, 
         centroids[i] = Point2f(static_cast<float>(moms[i].m10/moms[i].m00), static_cast<float>(moms[i].m01/moms[i].m00));
 
     }
+}
 
-
+void drawPath(std::vector<std::vector<Point>>& contours, std::vector<Point2f>& centroids, Mat imgContours, Mat img)
+{
+    if(contours.size() != 0) {
+    // loop through the contours and draw them out on an image, also draws out rectangles around cones and lines between them
+        for(size_t i = 0; i < contours.size(); i++) {
+            
+            // draws the contours out on the imgContours_blue image.
+            drawContours(imgContours, contours, (int)i, Scalar(0, 255, 0), 1);
+            
+            // boundingRect finds the smallest rectangle that completely encloses a given contour or set of points. 
+            // boundingRect returns the x and y coordinates of the top left corner as one Point, the width and the height and stores it in a Rect object.
+            cv::Rect rectAroundCone = cv::boundingRect(contours[i]);
+        
+            // We try to ignore the smallest contours spotted by only drawing rectangles for Rects that have width and height > 5 to reduce noise
+            if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
+                
+                // draw a rectangle with the Rect as base
+                cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
+                
+                // We store the centroid coordinates of the largest contour (i.e. centroids_blue[i - 1]) and the second largest contour (i.e centroids_blue[i])
+                // in variables to send to shared memory later. And we draw a line between the cones. 
+                if(i == 1) {
+                    line(img, Point(centroids[i - 1].x, centroids[i - 1].y), Point(centroids[i].x, centroids[i].y), cv::Scalar(0, 0, 255), 2);
+                    // We need to know if the car is goind clockwise or not to draw the second line correctly
+                    // if(clockwise) {
+                    //     // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x + 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                    // } else {
+                    //     // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x - 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                    // }
+                //since we only care about sending data about the closeest two cones, no need to continue loop if i > 1   
+                } else if(i > 1) {
+                    break;
+                }
+            }
+        }
+    }
 }
 
 

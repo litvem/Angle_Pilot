@@ -96,7 +96,7 @@ void handleExit(int sig);
  * case it returns float max and the x value
  * of the line
  */
-line_t getLineFromCones(pos_api::cone_t close, pos_api::cone_t far);
+line_t getLineFromCones(const pos_api::cone_t close, const pos_api::cone_t far);
 
 /**
  * Calculates the intersection between 2 lines,
@@ -110,11 +110,41 @@ line_t getLineFromCones(pos_api::cone_t close, pos_api::cone_t far);
  * @returns the point of intersect if there is one,
  * otherwise the origin in terms of the car heading
  */
-point_t getIntersect(line_t f, line_t g);
+point_t getIntersect(const line_t f, const line_t g);
 
-_Float32 getAngle(point_t origin, point_t p);
+/**
+ * Gets the angle between a vertical line and the line
+ * between two points.
+ * The output value ranges from -180 deg to +180 deg
+ * with negative values going clockwise
+ * 
+ * @param origin the starting point of the line
+ * @param p the endpoint of the line
+ * @return an angle between -180 and +180
+ */
+_Float32 getAngle(const point_t origin, const point_t p);
 
-void determineEdges(line_t *f, line_t *g);
+/**
+ * Checks if two lines are equal.
+ * Lines are equal if both of their coefficients and
+ * constants are equal
+ * 
+ * @param f a line
+ * @param g another line
+ * @return a bool representing if the lines are equal
+ * or not
+ */
+bool isEqual(const line_t f, const line_t g);
+
+/**
+ * Fills in edges if they don't exist by checking the
+ * existing edge. If no edge exists, it assumes the default
+ * lines
+ * 
+ * @param f a pointer to a line
+ * @param g a pointer to another line
+ */
+void determineEdges(line_t *const f, line_t *const g);
 
 /**
  * Calculates the steering angle value based on the
@@ -251,20 +281,27 @@ point_t getIntersect(const line_t f, const line_t g)
     // y coordinate of the intersect
     _Float32 y;
 
+    // Return the point at the top of the frame
+    // right in between the lines if they are vertical
     if (f.coefficient == INF_SLOPE && g.coefficient == INF_SLOPE)
     {
-        return origin;
+        return {f.constant - g.constant, 0};
     }
+    // If one of the lines is vertical,
+    // take that into consideration
     else if (f.coefficient == INF_SLOPE)
     {
+        // f.constant is the x value where the line is at
         x = f.constant;
         y = g.coefficient * x;
     }
     else if (g.coefficient == INF_SLOPE)
     {
-        x = g.coefficient;
+        // g.constant is the x value where the line is at
+        x = g.constant;
         y = f.coefficient * x;
     }
+    // Otherwise, treat them as regular functions
     else
     {
         // f(x) = g(x)
@@ -301,19 +338,27 @@ bool isEqual(const line_t f, const line_t g)
 
 void determineEdges(line_t *const f, line_t *const g)
 {
+    // The value of function f
     line_t _f = *f;
+    // The value of function g
     line_t _g = *g;
 
+    // Represents if f has cones or not
     bool fNoCone = isEqual(_f, NO_CONE_LINE);
+    // Represents if g has cones or not
     bool gNoCone = isEqual(_g, NO_CONE_LINE);
 
+    // If there are no cones, assume both lines
     if (fNoCone && gNoCone)
     {
         *f = leftDefault;
         *g = rightDefault;
     }
+    // If f has no cones...
     else if (fNoCone)
     {
+        // Check if g is on the right or left side
+        // and then assume f
         if (_g.coefficient < 0 ||
             _g.coefficient == INF_SLOPE && _g.constant > origin.x)
         {
@@ -324,8 +369,11 @@ void determineEdges(line_t *const f, line_t *const g)
             *f = rightDefault;
         }
     }
+    // If g has no cones...
     else if (gNoCone)
     {
+        // Check if f is on the right or left side
+        // and then assume g
         if (_f.coefficient < 0 ||
             _f.coefficient == INF_SLOPE && _f.constant > origin.x)
         {
@@ -340,27 +388,48 @@ void determineEdges(line_t *const f, line_t *const g)
 
 _Float32 calculateSteering(const pos_api::data_t data)
 {
+    // Start by getting the lines from the cones,
+    // if there are any
+
+    // The line between the blue cones
     line_t bLine = getLineFromCones(data.bClose, data.bFar);
+    // The line between the yellow cones
     line_t yLine = getLineFromCones(data.yClose, data.yFar);
 
+    // Determine which side the cones are on
+    // and assume edges for non-existent edges
     determineEdges(&bLine, &yLine);
 
+    // The intersect between the two lines, if there is one
     point_t intersect = getIntersect(bLine, yLine);
 
+    // The angle between a horizontal line and
+    // the line between origin and intersect
     _Float32 angle = getAngle(origin, intersect);
 
+    // A check for whether the angle is on the right side
     bool right = angle < 0;
+    // The magnitude of the angle
     _Float32 magnitude = abs(angle);
 
+    // If the angle is within the range that it's acceptable
+    // to not turn, don't
     if (0.0f <= magnitude && magnitude <= ZERO_THRESHOLD)
     {
         return 0.0f;
     }
+    // If it's between no steering and maximum turn,
+    // output a value between 0 and the maximum value
     else if (ZERO_THRESHOLD < magnitude && magnitude <= MAX_THRESHOLD)
     {
+        // The value to output
         _Float32 val;
+        // Get the percentage between no steering and max turn
         val = (magnitude - ZERO_THRESHOLD) / (MAX_THRESHOLD - ZERO_THRESHOLD);
+        // Multiply the percentage with the maximum value
         val *= MAX_ABS_STEERING_VAL;
+
+        // Right turns have a negative angle
         if (right)
         {
             val = -val;
@@ -368,5 +437,7 @@ _Float32 calculateSteering(const pos_api::data_t data)
         return val;
     }
 
+    // If it's above the max turn threshold, turn
+    // Multiply by -1 if we're turning to the right
     return MAX_ABS_STEERING_VAL * (right ? -1 : 1);
 }

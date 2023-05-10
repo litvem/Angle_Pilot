@@ -20,11 +20,11 @@
 // The threshold to pass for calculateSteering to output something non-zero
 #define ZERO_THRESHOLD 10.0f
 // The threshold to pass for calculateSteering to output MAX_ABS_STEERING_ANGLE
-#define MAX_THRESHOLD 50.0f
+#define MAX_THRESHOLD 70.0f
 
 // The fraction that the origin's y coordinate
 // should be offset by
-#define ORIGIN_Y_OFFSET 0.0f
+#define ORIGIN_Y_OFFSET -0.2f
 
 /**
  * Struct representing a linear mathematical functions.
@@ -243,8 +243,7 @@ int32_t main(int32_t argc, char **argv)
         // std::clog << "yClose @ (" << d.yClose.posX << ", " << d.yClose.posY << ")" << std::endl;
         // std::clog << "yFar @ (" << d.yFar.posX << ", " << d.yFar.posY << ")" << std::endl;
 
-        std::cout << "group_13;" << d.vidTimestamp.seconds << "." << d.vidTimestamp.micros
-                  << ";" << outputVal << std::endl;
+        std::cout << "group_13;" << d.vidTimestamp.micros << ";" << outputVal << std::endl;
     }
 
     return 0;

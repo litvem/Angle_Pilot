@@ -443,17 +443,14 @@ int32_t main(int32_t argc, char **argv) {
             imshow("Yellow", imgContours_yellow);
 
             // call the toMicroseconds function to get the timestamp converted to microseconds. 
-            // the std::get will get the second element in the sampleTimePoint std::pair, which is the timestamp
-            uint32_t seconds = sampleTimePoint.second.seconds();
-            uint32_t microseconds = sampleTimePoint.second.microseconds();
+            int64_t microseconds = cluon::time::toMicroseconds(sampleTimePoint.second);
 
             pos_api::timestamp_t vidTimeStamp {
-                seconds,    
                 microseconds
             };
 
             // Get the UNIX timestamp
-            cluon::data::TimeStamp t = cluon::time::now();
+            int64_t t = cluon::time::toMicroseconds(cluon::time::now());
 
             // Fill the struct with all the cordinates of the two closest yellow and blue cones and the current timestamp
             pos_api::data_t coneData {
@@ -461,7 +458,7 @@ int32_t main(int32_t argc, char **argv) {
                 bFar,
                 yClose,
                 yFar,
-                {t.seconds(), t.microseconds()},   
+                t,   
                 vidTimeStamp   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
             };
 

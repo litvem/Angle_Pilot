@@ -95,13 +95,9 @@ namespace pos_api {
      * timestamp (seconds) and the microseconds
      * elapsed since the UNIX timestamp (micros).
      * 
-     * @param seconds a UNIX timestamp
-     * @param micros the amount of microseconds
-     * elapsed since the UNIX timestamp
-     */
+     * @param micros the UNIX timestamp in microseconds
     struct timestamp_t {
-        const uint32_t seconds;
-        const uint32_t micros;
+        const int64_t micros;
     };
 
     /**

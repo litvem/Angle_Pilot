@@ -230,11 +230,19 @@ int32_t main(int32_t argc, char **argv)
         handleExit(SIGTERM);
         return 1;
     }
-    
+
+    // Used to check the timestamp of the last iteration.
+    // The wait function of SharedMemory seems to be inconsistent
+    int64_t lastTs = INT64_MIN;
     // Endless loop, exit with ^C
     while (true)
     {
         pos_api::data_t d = pos_api::get();
+
+        // Skip if the timestamp is a duplicate
+        if (d.vidTimestamp.micros == lastTs) continue;
+
+        lastTs = d.vidTimestamp.micros;
 
         _Float32 outputVal = calculateSteering(d);
 

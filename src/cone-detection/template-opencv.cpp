@@ -445,10 +445,6 @@ int32_t main(int32_t argc, char **argv) {
             // call the toMicroseconds function to get the timestamp converted to microseconds. 
             int64_t microseconds = cluon::time::toMicroseconds(sampleTimePoint.second);
 
-            pos_api::timestamp_t vidTimeStamp {
-                microseconds
-            };
-
             // Get the UNIX timestamp
             int64_t t = cluon::time::toMicroseconds(cluon::time::now());
 
@@ -459,7 +455,7 @@ int32_t main(int32_t argc, char **argv) {
                 yClose,
                 yFar,
                 {t},   
-                {vidTimeStamp}   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
+                {microseconds}   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
             };
 
             // put the cone data into the shared memory to be extracted by the steering calculator microservice

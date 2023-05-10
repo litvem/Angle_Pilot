@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//include section
 #include <time.h>
 #include <chrono>
 #include <ctime>
@@ -30,17 +31,99 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+
+// Define section
+
+/* These are the min and max values for HSV that is used when filtering for blue and yellow color */
+// Min HSV values for blue
+#define B_MIN_H 90
+#define B_MIN_S 100
+#define B_MIN_V 23
+// Max HSV values for blue
+#define B_MAX_H 128 
+#define B_MAX_S 179
+#define B_MAX_V 255
+//Min HSV values for yellow
+#define Y_MIN_H 15
+#define Y_MIN_S 100
+#define Y_MIN_V 120
+//Max HSV values for yellow
+#define Y_MAX_H 35
+#define Y_MAX_S 243 
+#define Y_MAX_V 255 
+
+/* Image dimensions */
+// Image width
+#define IMG_WIDTH_MIN 0
+#define IMG_WIDTH_MAX 640
+//Image height
+#define IMG_HEIGHT_MIN 290
+#define IMG_HEIGHT_MAX 400
+
+/* Default setting is that the y value is 0 at the top left corner of the image, this value is to set y as 0 in the bottom left corner */
+#define Y_TOTAL 110
+
 using namespace cv;
 using namespace std;
+using std::cout;
+using std::endl;
 
 
 // Function declaration
+
+/**
+ * This method clears the memory upon all termination events, such as ctrl+C or closing the terminal window
+ * @param sig the type of termination signal
+*/
 void handleExit(int sig);
+
+/**
+ * Create masks of the original image.
+ * The resulting blue/yellow mask is a binary mask which will have 1's where the pixels fall in the range of lower_bound and upper_bound, 
+ * meaning the pixels will be white there, and 0 where they don't,
+ * which means the pixels will be black there. 
+ * @param imgHSV the original image in HSV-format
+ * @param lower_bound the lower limit for the color range
+ * @param upper_bound the upper limit for the color range
+ * @param img_mask the resulting mask
+*/
 Mat maskImg(Mat imgHSV, Scalar lower_bound, Scalar upper_bound, Mat img_mask);
 
+/**
+ * Sorts the vectors holding the contours in descending order using selection sort.
+ * @param contours the vector of contours to be sorted
+*/
+void sortContours(std::vector<std::vector<Point>>& contours);
+
+/**
+ * This method iterates through the contours twice, the first time to find the moments of each contour. The second time ot calculates 
+ * the centroid of the contour. 
+ * @param moms vector to store the moments
+ * @param centroids vector to store the centroids
+ * @param contours the vector of contours
+*/
+void findCentroids(std::vector<Moments>& moments, std::vector<Point2f>& centroids, std::vector<std::vector<Point>>& contours);
+
+/**
+ * This method puts a rectangle on each cone and then draws a line between the two closest cones.
+ * @param contours vector of contours
+ * @param centroids the vector with the centroids of the contours
+ * @param imgContours the img to draw the contours on
+ * @param img the original image where the line and rectangles will be drawm
+*/
+void drawPath(std::vector<std::vector<Point>>& contours, std::vector<Point2f>& centroids, Mat imgContours, Mat img);
+
+
+/**
+ * This method will populate the cone structs with the x and y coordinates for the two closest cones on one side.
+ * @param coneClose the cone closest to the car
+ * @param coneFar the cone second closest to the car
+ * @param centroids the vector with the centroids of the cones
+ * @param contoursSize the size of the vector with the contours
+*/
+void fillConePositions(pos_api::cone_t& coneClose, pos_api::cone_t& coneFar, std::vector<Point2f> centroids, int contoursSize); 
 
 int32_t main(int32_t argc, char **argv) {
-
 
     int32_t retCode{1};
     // Parse the command line parameters as we require the user to specify some mandatory information on startup.
@@ -59,12 +142,11 @@ int32_t main(int32_t argc, char **argv) {
         return retCode;
     }
 
-    //---------------------------------------
+    // signal methods to handle termination events such as ctrl + C or closing the terminal window
     signal(SIGINT, handleExit);
     signal(SIGTERM, handleExit);
     signal(SIGQUIT, handleExit);
     signal(SIGHUP, handleExit);
-    //---------------------------------------
 
     // Extract the values from the command line parameters
     const std::string NAME{commandlineArguments["name"]};
@@ -117,6 +199,7 @@ int32_t main(int32_t argc, char **argv) {
         sharedMemory->unlock();
 
         // cv::namedWindow("Inspector", CV_WINDOW_AUTOSIZE);
+        // REMOOOOVE
         int minH{0};
         int maxH{179};
         cvCreateTrackbar("Hue b (min)", "Inspector", &minH, 179);
@@ -158,7 +241,7 @@ int32_t main(int32_t argc, char **argv) {
             // https://github.com/chrberger/libcluon/blob/master/libcluon/testsuites/TestEnvelopeConverter.cpp#L31-L40
             std::lock_guard<std::mutex> lck(gsrMutex);
             gsr = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(env));
-            std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
+            //std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
         };
 
         int frameCount = 0;        // to count frames
@@ -181,7 +264,7 @@ int32_t main(int32_t argc, char **argv) {
             // for the sliders to play with HSV values
             cv::Mat inspectorImg;
 /*---------------------------------- ^-------------------------------------------------------*/
-            // test git
+
             // Wait to receive a notification of a new frame.
             sharedMemory->wait();
 
@@ -214,17 +297,17 @@ int32_t main(int32_t argc, char **argv) {
             sharedMemory->unlock();
         
             // Crop original image
-            img = img(Range(290, 400), Range(0, 640));
+            img = img(Range(IMG_HEIGHT_MIN, IMG_HEIGHT_MAX), Range(IMG_WIDTH_MIN, IMG_WIDTH_MAX));
         
             // convert image to HSV format
             cv::Mat imgHSV;
             cvtColor(inspectorImg, imgHSV, cv::COLOR_BGR2HSV);
 
             // The ranges for blue and yellow filtering are set
-            cv::Scalar lower_blue = cv::Scalar(90, 100, 23);
-            cv::Scalar upper_blue = cv::Scalar(128, 179, 255);
-            cv::Scalar lower_yellow = cv::Scalar(15, 100, 120);
-            cv::Scalar upper_yellow = cv::Scalar(35, 243, 255);
+            cv::Scalar lower_blue = cv::Scalar(B_MIN_H, B_MIN_S, B_MIN_V);
+            cv::Scalar upper_blue = cv::Scalar(B_MAX_H, B_MAX_S, B_MAX_V);
+            cv::Scalar lower_yellow = cv::Scalar(Y_MIN_H, Y_MIN_S, Y_MIN_V);
+            cv::Scalar upper_yellow = cv::Scalar(Y_MAX_H, Y_MAX_S, Y_MAX_V);
 
 
             // declare masks for blue and yellow
@@ -254,7 +337,7 @@ int32_t main(int32_t argc, char **argv) {
             frameCount++;
             //std::cout << "Frame count: " << frameCount << std::endl; 
 
-            imgDirection = result_yellow_gray(Range(300, 400), Range(0, 250));
+            imgDirection = result_yellow_gray(Range(IMG_HEIGHT_MIN, IMG_HEIGHT_MAX), Range(IMG_WIDTH_MIN, IMG_WIDTH_MAX));
             int numPixels = countNonZero(imgDirection);
             // std::cout << "Pixels: " << numPixels << std::endl;
 
@@ -267,8 +350,8 @@ int32_t main(int32_t argc, char **argv) {
             //imshow("Direction", imgDirection);
 
             // Crop images 
-            result_blue_gray = result_blue_gray(Range(290, 400), Range(0, 640));
-            result_yellow_gray = result_yellow_gray(Range(290, 400), Range(0, 640));
+            result_blue_gray = result_blue_gray(Range(IMG_HEIGHT_MIN, IMG_HEIGHT_MAX), Range(IMG_WIDTH_MIN, IMG_WIDTH_MAX));
+            result_yellow_gray = result_yellow_gray(Range(IMG_HEIGHT_MIN, IMG_HEIGHT_MAX), Range(IMG_WIDTH_MIN, IMG_WIDTH_MAX));
                         
             /** 
              * The Canny method will find edges in an image using the Canny algorithm. It marks the edges and saves them in the gray masks Mat. 
@@ -296,7 +379,7 @@ int32_t main(int32_t argc, char **argv) {
             
 
             // we create a structuring element 5x5 pixels large, with the shape of a rectangle. 
-                Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
+            Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
 
             /**
              * This method combines the dilate() and erode() methods to fill in gaps and holes of the contours in the image to make them more uniform.
@@ -321,39 +404,21 @@ int32_t main(int32_t argc, char **argv) {
             findContours(result_blue_gray, contours_blue, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
             findContours(result_yellow_gray, contours_yellow, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
             
-            // selection sort on blue contours, descending order
-            for(size_t i = 0; i < contours_blue.size(); i++) {
-                    size_t maxIndex = i;
-                    double maxArea = contourArea(contours_blue[maxIndex]);
-                    for(size_t j = i + 1; j < contours_blue.size(); j++) {
-                    double currentArea = contourArea(contours_blue[j]);
-                    if(currentArea > maxArea) {
-                        maxIndex = j;
-                    }
-                    } 
-                    if(maxIndex != i) {
-                    vector<Point> temp = contours_blue[i];
-                    contours_blue[i] = contours_blue[maxIndex];
-                    contours_blue[maxIndex] = temp;
-                }
-            }
-
-            // selection sort on yellow contours, descending order
-                for(size_t i = 0; i < contours_yellow.size(); i++) {
-                    size_t maxIndex = i;
-                    double maxArea = contourArea(contours_yellow[maxIndex]);
-                    for(size_t j = i + 1; j < contours_yellow.size(); j++) {
-                    double currentArea = contourArea(contours_yellow[j]);
-                    if(currentArea > maxArea) {
-                        maxIndex = j;
-                    }
-                    } 
-                    if(maxIndex != i) {
-                    vector<Point> temp = contours_yellow[i];
-                    contours_yellow[i] = contours_yellow[maxIndex];
-                    contours_yellow[maxIndex] = temp;
-                }
-            }
+           // sort contours in descending order
+            sortContours(contours_blue);
+            sortContours(contours_yellow);
+             
+            // print are of contours
+            cout << "----- blue ----" << endl;
+             for(size_t i = 0; i < contours_blue.size(); i++) {
+                  cout << "area of  [" << i << "] : " << contourArea(contours_blue[i]) << endl;
+                 }
+             cout << "----- blue ----" << endl;
+             cout << "----- yellow ----" << endl;
+            for(size_t i = 0; i < contours_yellow.size(); i++) {
+                  cout << "area of  [" << i << "] : " << contourArea(contours_yellow[i]) << endl;
+                 }
+            cout << "----- yellow ----" << endl;
 
             /** 
              * Initializes the imgContours matrices to be the same size as their gray versions and with all pixels set to 0 i.e. black
@@ -362,172 +427,47 @@ int32_t main(int32_t argc, char **argv) {
             Mat imgContours_blue, imgContours_yellow;
             imgContours_blue = Mat::zeros(result_blue_gray.size(), CV_8UC3);
             imgContours_yellow = Mat::zeros(result_yellow_gray.size(), CV_8UC3);
-
-                
+   
             /**
              * We define vectors of Moments called moms, the same size as the contours vectors.
              * Moments are objects that will contain some information about each shape. We can use it to calculate area, orientation, size etc.,
              * in our case we are interested in the centroid = geometric center of the object.
              */ 
-            std::vector<Moments> moms_blue(contours_blue.size());
-            for(size_t i = 0; i < contours_blue.size(); i++) {
-                moms_blue[i] = moments(contours_blue[i]);
-            }
-            // we loop through the moments and perform operations on them to get the centroid values 
-            std::vector<Point2f> centroids_blue(contours_blue.size());
-            for(size_t i = 0; i < contours_blue.size(); i++) {
-                    // m00: represents the total area of the contour. 
-                    // m10: represents the sum of the x coordinates of all the pixels in the shape. 
-                    // m01: represents the sum of the y coordinatese of all pixels in the shape. 
-                    // m10/m00 gives us the average x coordinate of the shape which is also the x coordinate of the centroid
-                    // m01/m00 gives us the average y coordinate of the shape which is also the y coordinate of the centroid  
-                    // we create a Point out of the centroid x and y coordinates and store in centroids vector
-                    // m10, m00, and m01 operations return double, so we cast to float
-                centroids_blue[i] = Point2f(static_cast<float>(moms_blue[i].m10/moms_blue[i].m00), static_cast<float>(moms_blue[i].m01/moms_blue[i].m00));
-            }
+             std::vector<Moments> moms_blue(contours_blue.size());
+             std::vector<Moments> moms_yellow(contours_yellow.size());
+             // declaration of vectors of Points to hold the centroids
+             std::vector<Point2f> centroids_blue(contours_blue.size());
+             std::vector<Point2f> centroids_yellow(contours_yellow.size());
 
-            // We do the same thing for the yellow contours
-            std::vector<Moments> moms_yellow(contours_yellow.size());
-            for(size_t i = 0; i < contours_yellow.size(); i++) {
-                moms_yellow[i] = moments(contours_yellow[i]);
-            }
-            // centroids yellow
-            std::vector<Point2f> centroids_yellow(contours_yellow.size());
-            for(size_t i = 0; i < contours_yellow.size(); i++) {
-                
-                centroids_yellow[i] = Point2f(static_cast<float>(moms_yellow[i].m10/moms_yellow[i].m00), static_cast<float>(moms_yellow[i].m01/moms_yellow[i].m00));
-            }
 
-            // declare variables to hold coordinates of blue cones
-            uint16_t bCloseX;
-            uint16_t bCloseY;
-            uint16_t bFarX;
-            uint16_t bFarY;
+            // Calculate centroids of each blue and yellow shape
+            findCentroids(moms_blue, centroids_blue, contours_blue);
+            findCentroids(moms_yellow, centroids_yellow, contours_yellow);
 
-            // declare cone structs to hold the variables declared previously
+            // declare cone structs to hold the x and y coordinate variables
             pos_api::cone_t bClose{};
             pos_api::cone_t bFar{};
             pos_api::cone_t yClose{};
             pos_api::cone_t yFar{};
             
-            if(contours_blue.size() != 0) {
-            // loop through the contours and draw them out on an image
-                for(size_t i = 0; i < contours_blue.size(); i++) {
-                    
-                    // draws the contours out on the imgContours_blue image.
-                    drawContours(imgContours_blue, contours_blue, (int)i, Scalar(0, 255, 0), 1);
-                    
-                    // boundingRect finds the smallest rectangle that completely encloses a given contour or set of points. 
-                    // boundingRect returns the x and y coordinates of the top left corner as one Point, the width and the height and stores it in a Rect object.
-                    cv::Rect rectAroundCone = cv::boundingRect(contours_blue[i]);
-                
-                    // We try to ignore the smallest contours spotted by only drawing rectangles for Rects that have width and height > 5 to reduce noise
-                    if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
-                        
-                        // draw a rectangle with the Rect as base
-                        cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
-                        
-                        // We store the centroid coordinates of the largest contour (i.e. centroids_blue[i - 1]) and the second largest contour (i.e centroids_blue[i])
-                        // in variables to send to shared memory later. And we draw a line between the cones. 
-                        if(i == 1) {
-                            line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i].x, centroids_blue[i].y), cv::Scalar(0, 0, 255), 2);
-                            // We need to know if the car is goind clockwise or not to draw the second line correctly
-                            if(clockwise) {
-                                // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x + 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                            } else {
-                                // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x - 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                            }
-                        //since we only care about sending data about the closeest two cones, no need to continue loop if i > 1   
-                        } else if(i > 1) {
-                            break;
-                        }
-                    }
-                }
-            }
+            // draw rectangles on top of cones as well as lines between them
+            drawPath(contours_blue, centroids_blue, imgContours_blue, img);
+            drawPath(contours_yellow, centroids_yellow, imgContours_yellow, img);
 
-            
-                
-            // if there are atleast 2 contours, add the centroids of the biggest and second biggest contour to the
-            // cone structs declared previously.
-            if(contours_blue.size() > 1) {
-                bCloseX = centroids_blue[0].x;
-                bCloseY = centroids_blue[0].y;
-                bFarX = centroids_blue[1].x;
-                bFarY = centroids_blue[1].y;
-                pos_api::cone_t tmpClose{bCloseX, bCloseY};
-                pos_api::cone_t tmpFar{bFarX, bFarY};
-                memcpy(&bClose, &tmpClose, sizeof(pos_api::cone_t));
-                memcpy(&bFar, &tmpFar, sizeof(pos_api::cone_t));
-            // if there are < 2 contours found, send NO_CONE_POS to represent it.   
-            } else {
-                memcpy(&bFar, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
-                memcpy(&bClose, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
-            }
-                
-            // Define variables for yellow cone position data
-                uint16_t yCloseX;
-                uint16_t yCloseY;
-                uint16_t yFarX;
-                uint16_t yFarY;
-
-                if(contours_yellow.size() != 0) {
-                // we do the same operations for the yellow cones as for the blue ones
-                for(size_t i = 0; i < contours_yellow.size(); i++) {
-                
-                //draw contours
-                drawContours(imgContours_yellow, contours_yellow, (int)i, Scalar(0, 255, 0), 1);
-                
-                // get Rect object
-                cv::Rect rectAroundCone = cv::boundingRect(contours_yellow[i]);
-
-                // if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
-                // draw rectangle
-                cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
-                
-                // same procedure for yellow as for blue
-                if(i == 1) {
-                    line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i].x, centroids_yellow[i].y), cv::Scalar(0, 0, 255), 2);
-                    if(clockwise) {
-                        // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x - 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                    } else {
-                        // line(img, Point(centroids_yellow[i - 1].x, centroids_yellow[i - 1].y), Point(centroids_yellow[i - 1].x + 100, centroids_yellow[i - 1].y), cv::Scalar(0, 0, 255), 2);
-                    }
-                } else if(i > 1) {
-                    break;
-                }
-                }
-                
-            }
-                
-            // Same procedure for yellow cones as for blue
-            if(contours_yellow.size() > 1) {
-                yCloseX = centroids_yellow[0].x;
-                yCloseY = centroids_yellow[0].y;
-                yFarX = centroids_yellow[1].x;
-                yFarY = centroids_yellow[1].y;
-                pos_api::cone_t tmpClose{yCloseX, yCloseY};
-                pos_api::cone_t tmpFar{yFarX, yFarY};
-                memcpy(&yClose, &tmpClose, sizeof(pos_api::cone_t));
-                memcpy(&yFar, &tmpFar, sizeof(pos_api::cone_t));
-            } else {
-                memcpy(&yFar, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
-                memcpy(&yClose, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
-            }
-
+            // extract x and y coordinate and populate the cone structs with them
+            fillConePositions(bClose, bFar, centroids_blue, contours_blue.size()); 
+            fillConePositions(yClose, yFar, centroids_yellow, contours_yellow.size()); 
 
             // Display the windows
             namedWindow("Blue", CV_WINDOW_AUTOSIZE);
-            //moveWindow("Blue", 300, 200);               // make the windows appear at a fixed place on the screen when program runs
             imshow("Blue", imgContours_blue);
             namedWindow("Yellow", CV_WINDOW_AUTOSIZE);
-            //moveWindow("Yellow", 400, 300);
             imshow("Yellow", imgContours_yellow);
 
-            // call the toMicroseconds function to get the timestamp converted to microseconds. 
-            // the std::get will get the second element in the sampleTimePoint std::pair, which is the timestamp
+            // get seconds and microseconds from the video frame timestamp
             uint32_t seconds = sampleTimePoint.second.seconds();
-            uint32_t microseconds = cluon::time::toMicroseconds(std::get<1>(sampleTimePoint));
-
+            uint32_t microseconds = sampleTimePoint.second.microseconds();
+            // timestamp_t object to hold seconds and microseconds
             pos_api::timestamp_t vidTimeStamp {
                 seconds,    
                 microseconds
@@ -536,14 +476,14 @@ int32_t main(int32_t argc, char **argv) {
             // Get the UNIX timestamp
             cluon::data::TimeStamp t = cluon::time::now();
 
-            // Fill the struct with all the cordinates of the two closest yellow and blue cones and the current timestamp
+            // Fill the struct with all the cordinates of the two closest yellow and blue cones, the UNIX timestamp and the video frame timestamp
             pos_api::data_t coneData {
                 bClose,
                 bFar,
                 yClose,
                 yFar,
                 {t.seconds(), t.microseconds()},   
-                vidTimeStamp   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
+                vidTimeStamp  
             };
 
             // put the cone data into the shared memory to be extracted by the steering calculator microservice
@@ -555,7 +495,7 @@ int32_t main(int32_t argc, char **argv) {
             // If you want to access the latest received ground steering, don't forget to lock the mutex:
             {
                 std::lock_guard<std::mutex> lck(gsrMutex);
-                std::cout << "main: groundSteering = " << gsr.groundSteering() << std::endl;
+                //std::cout << "main: groundSteering = " << gsr.groundSteering() << std::endl;
             }
 
 
@@ -578,6 +518,7 @@ int32_t main(int32_t argc, char **argv) {
     return retCode;
 }
 
+
 void handleExit(int sig)
 {
     std::clog << std::endl << "Cleaning up..." << std::endl;
@@ -586,15 +527,6 @@ void handleExit(int sig)
     exit(0);
 }
 
-/**
- * Create masks of the original image.
- * The resulting blue/yellow mask is a binary mask which will have 1's where the pixels fall in the range of lower_bound and upper_bound, meaning the pixels will be white there, and 0 where they don't
- * which means the pixels will be black there. 
- * @param imgHSV the original image in HSV-format
- * @param lower_bound the lower limit for the color range
- * @param upper_bound the upper limit for the color range
- * @param img_mask the resulting mask
-*/
 Mat maskImg(Mat imgHSV, Scalar lower_bound, Scalar upper_bound, Mat img_mask)
 {   
     Mat result;      // image to store the result of the operations
@@ -606,5 +538,104 @@ Mat maskImg(Mat imgHSV, Scalar lower_bound, Scalar upper_bound, Mat img_mask)
     cv::bitwise_and(imgHSV, imgHSV, result, img_mask);
     return result;
 }
+
+
+ void sortContours(std::vector<std::vector<Point>>& contours) 
+{   
+    for(size_t i = 0; i < contours.size(); i++) {
+        size_t maxIndex = i;
+        double maxArea = contourArea(contours[maxIndex]);
+        for(size_t j = i + 1; j < contours.size(); j++) {
+            double currentArea = contourArea(contours[j]);
+            if(currentArea > maxArea) {
+                maxIndex = j;
+                maxArea = contourArea(contours[j]);
+            }
+        }
+        if(maxIndex != i) {
+            vector<Point> temp = contours[i];
+            contours[i] = contours[maxIndex];
+            contours[maxIndex] = temp;
+        }
+    }
+}
+
+void findCentroids(std::vector<Moments>& moms, std::vector<Point2f>& centroids, std::vector<std::vector<Point>>& contours)
+{
+    for(size_t i = 0; i < contours.size(); i++) {
+        moms[i] = moments(contours[i]);
+    }
+    // we loop through the moments and perform operations on them to get the centroid values 
+    for(size_t i = 0; i < contours.size(); i++) {
+            // m00: represents the total area of the contour. 
+            // m10: represents the sum of the x coordinates of all the pixels in the shape. 
+            // m01: represents the sum of the y coordinatese of all pixels in the shape. 
+            // m10/m00 gives us the average x coordinate of the shape which is also the x coordinate of the centroid
+            // m01/m00 gives us the average y coordinate of the shape which is also the y coordinate of the centroid  
+            // we create a Point out of the centroid x and y coordinates and store in centroids vector
+            // m10, m00, and m01 operations return double, so we cast to float
+        centroids[i] = Point2f(static_cast<float>(moms[i].m10/moms[i].m00), static_cast<float>(moms[i].m01/moms[i].m00));
+
+    }
+}
+
+void drawPath(std::vector<std::vector<Point>>& contours, std::vector<Point2f>& centroids, Mat imgContours, Mat img)
+{
+    if(contours.size() != 0) {
+    // loop through the contours and draw them out on an image, also draws out rectangles around cones and lines between them
+        for(size_t i = 0; i < contours.size(); i++) {
+            
+            // draws the contours out on the imgContours_blue image.
+            drawContours(imgContours, contours, (int)i, Scalar(0, 255, 0), 1);
+            
+            // boundingRect finds the smallest rectangle that completely encloses a given contour or set of points. 
+            // boundingRect returns the x and y coordinates of the top left corner as one Point, the width and the height and stores it in a Rect object.
+            cv::Rect rectAroundCone = cv::boundingRect(contours[i]);
+        
+            // We try to ignore the smallest contours spotted by only drawing rectangles for Rects that have width and height > 5 to reduce noise
+            if(rectAroundCone.height > 5 && rectAroundCone.width > 5) {
+                
+                // draw a rectangle with the Rect as base
+                cv::rectangle(img, rectAroundCone, cv::Scalar(0, 255, 0), 2);
+                
+                // We store the centroid coordinates of the largest contour (i.e. centroids_blue[i - 1]) and the second largest contour (i.e centroids_blue[i])
+                // in variables to send to shared memory later. And we draw a line between the cones. 
+                if(i == 1) {
+                    line(img, Point(centroids[i - 1].x, centroids[i - 1].y), Point(centroids[i].x, centroids[i].y), cv::Scalar(0, 0, 255), 2);
+                    // We need to know if the car is goind clockwise or not to draw the second line correctly
+                    // if(clockwise) {
+                    //     // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x + 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                    // } else {
+                    //     // line(img, Point(centroids_blue[i - 1].x, centroids_blue[i - 1].y), Point(centroids_blue[i - 1].x - 100, centroids_blue[i - 1].y), cv::Scalar(0, 0, 255), 2);
+                    // }
+                //since we only care about sending data about the closeest two cones, no need to continue loop if i > 1   
+                } else if(i > 1) {
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void fillConePositions(pos_api::cone_t& coneClose, pos_api::cone_t& coneFar, std::vector<Point2f> centroids, int contoursSize) 
+{
+    // if there are atleast two cones visible, enter if block and get x and y coordinates
+    if(contoursSize > 1) {
+        uint16_t closeX = centroids[0].x;
+        uint16_t closeY = Y_TOTAL - centroids[0].y;
+        uint16_t farX = centroids[1].x;
+        uint16_t farY = Y_TOTAL - centroids[1].y;
+        pos_api::cone_t tmpClose{closeX, closeY};
+        pos_api::cone_t tmpFar{farX, farY};
+        memcpy(&coneClose, &tmpClose, sizeof(pos_api::cone_t));
+        memcpy(&coneFar, &tmpFar, sizeof(pos_api::cone_t));
+    // if there are < 2 contours found, send NO_CONE_POS to represent it.   
+    } else {
+        memcpy(&coneClose, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
+        memcpy(&coneFar, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
+    }
+}
+
+
 
 

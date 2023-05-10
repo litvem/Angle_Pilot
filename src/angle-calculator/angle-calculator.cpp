@@ -26,6 +26,10 @@
 // should be offset by
 #define ORIGIN_Y_OFFSET -0.2f
 
+// The fraction that each default lines' top point should be placed
+// from the sides of the frame. This MUST be a whole number!!
+#define DEFAULT_LINE_OFFSET 3.0f
+
 /**
  * Struct representing a linear mathematical functions.
  * (y = coefficient * x + constant)
@@ -189,14 +193,14 @@ int32_t main(int32_t argc, char **argv)
     // and bottom right corner
     rightDefault = getLineFromCones(
         {(uint16_t) (width - 1), 0},
-        {(uint16_t) ((width / 4.0f) * 3.0f), height}
+        {(uint16_t) ((width / DEFAULT_LINE_OFFSET) * DEFAULT_LINE_OFFSET - 1.0f), height}
     );
 
     // Get the default right edge between the top center
     // and bottom left corner
     leftDefault = getLineFromCones(
         {1, 0},
-        {(uint16_t) (width / 4.0f), height}
+        {(uint16_t) (width / DEFAULT_LINE_OFFSET), height}
     );
 
 

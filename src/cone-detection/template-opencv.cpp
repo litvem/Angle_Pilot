@@ -458,8 +458,8 @@ int32_t main(int32_t argc, char **argv) {
                 bFar,
                 yClose,
                 yFar,
-                t,   
-                vidTimeStamp   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
+                {t},   
+                {vidTimeStamp}   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
             };
 
             // put the cone data into the shared memory to be extracted by the steering calculator microservice

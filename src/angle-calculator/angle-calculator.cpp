@@ -18,17 +18,21 @@
 // Output value of no steering angle
 #define NO_ANGLE 0.0f
 // The threshold to pass for calculateSteering to output something non-zero
-#define ZERO_THRESHOLD 10.0f
+#define ZERO_THRESHOLD 20.0f
 // The threshold to pass for calculateSteering to output MAX_ABS_STEERING_ANGLE
 #define MAX_THRESHOLD 70.0f
 
 // The fraction that the origin's y coordinate
 // should be offset by
-#define ORIGIN_Y_OFFSET -0.2f
+#define ORIGIN_Y_OFFSET 0.0f
 
 // The fraction that each default lines' top point should be placed
 // from the sides of the frame. This MUST be a whole number!!
-#define DEFAULT_LINE_OFFSET 3.0f
+#define DEFAULT_LINE_OFFSET 2.0f
+
+// Degrees to shift when calculating the output,
+// with positive going counterclockwise
+#define ANGLE_BIAS 20.0f
 
 /**
  * Struct representing a linear mathematical functions.
@@ -400,7 +404,9 @@ _Float32 getAngle(const point_t origin, const point_t p) {
     // 0 degrees will point straight up while +/-180
     // degrees will point straight down
     angle = fmod(angle + 180.0f, 180.0f) - 90.0f;
-    return angle;
+
+    // Return the angle with a bias, if there is one
+    return angle + ANGLE_BIAS;
 }
 
 bool isEqual(const line_t f, const line_t g)

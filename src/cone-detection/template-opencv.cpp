@@ -57,7 +57,7 @@
 #define IMG_WIDTH_MIN 0
 #define IMG_WIDTH_MAX 640
 //Image height
-#define IMG_HEIGHT_MIN 290
+#define IMG_HEIGHT_MIN 270
 #define IMG_HEIGHT_MAX 400
 
 /* Default setting is that the y value is 0 at the top left corner of the image, this value is to set y as 0 in the bottom left corner */
@@ -488,6 +488,11 @@ int32_t main(int32_t argc, char **argv) {
 
             // put the cone data into the shared memory to be extracted by the steering calculator microservice
             pos_api::put(coneData);
+            
+            cout << "bClose X: " << bClose.posX << " Y: " << bClose.posY << endl;
+            cout << "bFar X: " << bFar.posX << " Y: " << bFar.posY << endl;
+            cout << "yClose X: " << yClose.posX << " Y: " << yClose.posY << endl;
+            cout << "yFar X: " << yFar.posX << " Y: " << yFar.posY << endl;
 
 
     //-------------------------------------------------^-----------------------------------------------------

@@ -142,6 +142,7 @@ int32_t main(int32_t argc, char **argv) {
         return retCode;
     }
 
+    //---------------------------------------
     // signal methods to handle termination events such as ctrl + C or closing the terminal window
     signal(SIGINT, handleExit);
     signal(SIGTERM, handleExit);
@@ -241,7 +242,7 @@ int32_t main(int32_t argc, char **argv) {
             // https://github.com/chrberger/libcluon/blob/master/libcluon/testsuites/TestEnvelopeConverter.cpp#L31-L40
             std::lock_guard<std::mutex> lck(gsrMutex);
             gsr = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(env));
-            //std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
+            ////std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
         };
 
         int frameCount = 0;        // to count frames
@@ -464,17 +465,11 @@ int32_t main(int32_t argc, char **argv) {
             namedWindow("Yellow", CV_WINDOW_AUTOSIZE);
             imshow("Yellow", imgContours_yellow);
 
-            // get seconds and microseconds from the video frame timestamp
-            uint32_t seconds = sampleTimePoint.second.seconds();
-            uint32_t microseconds = sampleTimePoint.second.microseconds();
-            // timestamp_t object to hold seconds and microseconds
-            pos_api::timestamp_t vidTimeStamp {
-                seconds,    
-                microseconds
-            };
+            // call the toMicroseconds function to get the timestamp converted to microseconds. 
+            int64_t microseconds = cluon::time::toMicroseconds(sampleTimePoint.second);
 
             // Get the UNIX timestamp
-            cluon::data::TimeStamp t = cluon::time::now();
+            int64_t t = cluon::time::toMicroseconds(cluon::time::now());
 
             // Fill the struct with all the cordinates of the two closest yellow and blue cones, the UNIX timestamp and the video frame timestamp
             pos_api::data_t coneData {
@@ -482,8 +477,8 @@ int32_t main(int32_t argc, char **argv) {
                 bFar,
                 yClose,
                 yFar,
-                {t.seconds(), t.microseconds()},   
-                vidTimeStamp  
+                {t},   
+                {microseconds}   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
             };
 
             // put the cone data into the shared memory to be extracted by the steering calculator microservice
@@ -500,7 +495,7 @@ int32_t main(int32_t argc, char **argv) {
             // If you want to access the latest received ground steering, don't forget to lock the mutex:
             {
                 std::lock_guard<std::mutex> lck(gsrMutex);
-                //std::cout << "main: groundSteering = " << gsr.groundSteering() << std::endl;
+                ////std::cout << "main: groundSteering = " << gsr.groundSteering() << std::endl;
             }
 
 

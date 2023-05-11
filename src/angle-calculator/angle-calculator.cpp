@@ -6,9 +6,6 @@
 // Include the standard int types of C
 #include <cstdint>
 
-// Used to get the limits of numeric types
-#include <limits>
-
 // Declares a set of function to compute common mathematical operations. 
 #include <math.h>
 
@@ -17,22 +14,6 @@
 
 // Output value of no steering angle
 #define NO_ANGLE 0.0f
-// The threshold to pass for calculateSteering to output something non-zero
-#define ZERO_THRESHOLD 20.0f
-// The threshold to pass for calculateSteering to output MAX_ABS_STEERING_ANGLE
-#define MAX_THRESHOLD 70.0f
-
-// The fraction that the origin's y coordinate
-// should be offset by
-#define ORIGIN_Y_OFFSET 0.0f
-
-// The fraction that each default lines' top point should be placed
-// from the sides of the frame. This MUST be a whole number!!
-#define DEFAULT_LINE_OFFSET 2.0f
-
-// Degrees to shift when calculating the output,
-// with positive going counterclockwise
-#define ANGLE_BIAS 20.0f
 
 /**
  * Struct representing a linear mathematical functions.
@@ -65,6 +46,23 @@ uint16_t width;
 
 // The height of the frame being processed
 uint16_t height;
+
+// The threshold to pass for calculateSteering to output something non-zero
+_Float32 zeroThreshold;
+// The threshold to pass for calculateSteering to output MAX_ABS_STEERING_ANGLE
+_Float32 maxThreshold;
+
+// The fraction that the origin's y coordinate
+// should be offset by
+_Float32 originYOffset;
+
+// The fraction that each default lines' top point should be placed
+// from the sides of the frame. This MUST be a whole number!!
+_Float32 defaultLineOffset;
+
+// Degrees to shift when calculating the output,
+// with positive going counterclockwise
+_Float32 angleBias;
 
 // The origin of the car heading
 point_t origin;
@@ -168,13 +166,27 @@ _Float32 calculateSteering(pos_api::data_t data);
 int32_t main(int32_t argc, char **argv)
 {
     auto cmdargs = cluon::getCommandlineArguments(argc, argv);
-    if (!cmdargs.count("width") || !cmdargs.count("height"))
+    if (!cmdargs.count("width") ||
+        !cmdargs.count("height") ||
+        !cmdargs.count("z") || // zeroThreshold
+        !cmdargs.count("m") || // maxThreshold
+        !cmdargs.count("y") || // originYOffset
+        !cmdargs.count("l") || // defaultLineOffset
+        !cmdargs.count("b"))   // angleBias
     {
         std::cerr << argv[0] << " calculates a steering value based on cone data received through shared memory." << std::endl;
-        std::cerr << "Usage:   " << argv[0] << " --width=<width of frame> --height=<height of frame>" << std::endl;
-        std::cerr << "         --width:  width of the frame" << std::endl;
-        std::cerr << "         --height: height of the frame" << std::endl;
-        std::cerr << "Example: " << argv[0] << " --width=640 --height=480" << std::endl;
+        std::cerr << "Usage:   " << argv[0] << " --width=<width of frame> --height=<height of frame>"
+                  << "--z=<threshold for non-zero values> --m=<threshold for max value>"
+                  << "--y=<origin y value offset> --l=<endpoint offset for default lines>"
+                  << "--b=<angle calculation offset>" << std::endl;
+        std::cerr << "         --width:  width of the frame (int)" << std::endl;
+        std::cerr << "         --height: height of the frame (int)" << std::endl;
+        std::cerr << "         --z: angle threshold for the algorithm to output non-zero values (float)" << std::endl;
+        std::cerr << "         --m: angle threshold for the algorithm to output the maximum value (float)" << std::endl;
+        std::cerr << "         --y: fraction to offset the origin's y value (float)" << std::endl;
+        std::cerr << "         --l: number of partitions to create from the frame to offset the default lines' ending point to (int)" << std::endl;
+        std::cerr << "         --b: angle to offset the angle calculation by (float)" << std::endl;
+        std::cerr << "Example: " << argv[0] << " --width=640 --height=480 --z=10 --m=70 --y=0.2 --l=3 --b=0" << std::endl;
         return 1;
     }
 
@@ -190,21 +202,26 @@ int32_t main(int32_t argc, char **argv)
         }
         width = tmpWidth;
         height = tmpHeight;
+        zeroThreshold = std::stof(cmdargs["z"]);
+        maxThreshold = std::stof(cmdargs["m"]);
+        originYOffset = std::stof(cmdargs["y"]);
+        defaultLineOffset = std::stof(cmdargs["l"]);
+        angleBias = std::stof(cmdargs["b"]);
     }
-    origin = {(_Float32) width / 2.0f, height * ORIGIN_Y_OFFSET};
+    origin = {(_Float32) width / 2.0f, height * originYOffset};
 
     // Get the default right edge between the top center
     // and bottom right corner
     rightDefault = getLineFromCones(
         {(uint16_t) (width - 1), 0},
-        {(uint16_t) ((width / DEFAULT_LINE_OFFSET) * DEFAULT_LINE_OFFSET - 1.0f), height}
+        {(uint16_t) ((width / defaultLineOffset) * defaultLineOffset - 1.0f), height}
     );
 
     // Get the default right edge between the top center
     // and bottom left corner
     leftDefault = getLineFromCones(
         {1, 0},
-        {(uint16_t) (width / DEFAULT_LINE_OFFSET), height}
+        {(uint16_t) (width / defaultLineOffset), height}
     );
 
 
@@ -406,7 +423,7 @@ _Float32 getAngle(const point_t origin, const point_t p) {
     angle = fmod(angle + 180.0f, 180.0f) - 90.0f;
 
     // Return the angle with a bias, if there is one
-    return angle + ANGLE_BIAS;
+    return angle + angleBias;
 }
 
 bool isEqual(const line_t f, const line_t g)
@@ -496,18 +513,18 @@ _Float32 calculateSteering(const pos_api::data_t data)
 
     // If the angle is within the range that it's acceptable
     // to not turn, don't
-    if (0.0f <= magnitude && magnitude <= ZERO_THRESHOLD)
+    if (0.0f <= magnitude && magnitude <= zeroThreshold)
     {
         return 0.0f;
     }
     // If it's between no steering and maximum turn,
     // output a value between 0 and the maximum value
-    else if (ZERO_THRESHOLD < magnitude && magnitude <= MAX_THRESHOLD)
+    else if (zeroThreshold < magnitude && magnitude <= maxThreshold)
     {
         // The value to output
         _Float32 val;
         // Get the percentage between no steering and max turn
-        val = (magnitude - ZERO_THRESHOLD) / (MAX_THRESHOLD - ZERO_THRESHOLD);
+        val = (magnitude - zeroThreshold) / (maxThreshold - zeroThreshold);
         // Multiply the percentage with the maximum value
         val *= MAX_ABS_STEERING_VAL;
 

@@ -158,3 +158,8 @@ pos_api::data_t pos_api::get()
     mem->unlock();
     return d;
 }
+
+bool pos_api::isEqual(const pos_api::cone_t c1, const pos_api::cone_t c2)
+{
+    return c1.posX == c2.posX && c1.posY == c2.posY;
+}

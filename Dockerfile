@@ -20,12 +20,11 @@ MAINTAINER Christian Berger "christian.berger@gu.se"
 ENV DEBIAN_FRONTEND noninteractive
 
 # Upgrade the Ubuntu 18.04 LTS base image
+# and install the development libraries for OpenCV
 RUN apt-get update -y && \
     apt-get upgrade -y && \
-    apt-get dist-upgrade -y
-
-# Install the development libraries for OpenCV
-RUN apt-get install -y --no-install-recommends \
+    apt-get dist-upgrade -y && \
+    apt-get install -y --no-install-recommends \
         ca-certificates \
         cmake \
         build-essential \

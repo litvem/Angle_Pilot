@@ -214,7 +214,7 @@ int32_t main(int32_t argc, char **argv)
     // and bottom right corner
     rightDefault = getLineFromCones(
         {(uint16_t) (width - 1), 0},
-        {(uint16_t) ((width / defaultLineOffset) * defaultLineOffset - 1.0f), height}
+        {(uint16_t) ((width / defaultLineOffset) * (defaultLineOffset - 1.0f)), height}
     );
 
     // Get the default right edge between the top center

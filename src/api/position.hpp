@@ -113,6 +113,7 @@ namespace pos_api {
      * @param yFar the second closest yellow cone
      * @param now the current UNIX timestamp
      * @param vidTimestamp the timestamp used in
+     * @param gsr the original ground steering request
      * the .rec file
      */
     struct data_t {
@@ -122,6 +123,7 @@ namespace pos_api {
         const cone_t yFar;
         const timestamp_t now;
         const timestamp_t vidTimestamp;
+        const _Float32 gsr;
     };
 
     /*

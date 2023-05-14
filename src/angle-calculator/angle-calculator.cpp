@@ -270,6 +270,7 @@ int32_t main(int32_t argc, char **argv)
         lastTs = d.vidTimestamp.micros;
 
         _Float32 outputVal = calculateSteering(d);
+        _Float32 gsrVal = d.gsr;
 
         // std::clog << "bClose @ (" << d.bClose.posX << ", " << d.bClose.posY << ")" << std::endl;
         // std::clog << "bFar @ (" << d.bFar.posX << ", " << d.bFar.posY << ")" << std::endl;

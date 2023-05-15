@@ -85,8 +85,8 @@ namespace pos_api {
 
     // Constant used when no cone position is available
     const cone_t NO_CONE_POS{
-        UINT16_MAX,
-        UINT16_MAX
+        0,
+        0
     };
 
     /**
@@ -95,13 +95,10 @@ namespace pos_api {
      * timestamp (seconds) and the microseconds
      * elapsed since the UNIX timestamp (micros).
      * 
-     * @param seconds a UNIX timestamp
-     * @param micros the amount of microseconds
-     * elapsed since the UNIX timestamp
+     * @param micros the UNIX timestamp in microseconds
      */
     struct timestamp_t {
-        const uint32_t seconds;
-        const uint32_t micros;
+        const int64_t micros;
     };
 
     /**
@@ -194,6 +191,16 @@ namespace pos_api {
      * @returns the cone data from a producer
      */
     data_t get();
+
+    /**
+     * Checks if two cones are equal in terms of position
+     * 
+     * @param c1 the first cone to compare
+     * @param c2 the second cone to compare
+     * @returns a bool for whether the two cones are equal
+     * or not
+     */
+    bool isEqual(const cone_t c1, const cone_t c2);
 } // !namespace pos_api
 
 #endif // !DIT639_2023_GROUP_13_POSITION_HPP

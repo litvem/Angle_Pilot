@@ -236,13 +236,15 @@ int32_t main(int32_t argc, char **argv) {
 
 
         opendlv::proxy::GroundSteeringRequest gsr;
+        _Float32 gsrVal;
         std::mutex gsrMutex;
-        auto onGroundSteeringRequest = [&gsr, &gsrMutex](cluon::data::Envelope &&env){
+        auto onGroundSteeringRequest = [&gsr, &gsrMutex, &gsrVal](cluon::data::Envelope &&env){
             // The envelope data structure provide further details, such as sampleTimePoint as shown in this microseconds case:
             // https://github.com/chrberger/libcluon/blob/master/libcluon/testsuites/TestEnvelopeConverter.cpp#L31-L40
             std::lock_guard<std::mutex> lck(gsrMutex);
             gsr = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(env));
-            ////std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
+            gsrVal = gsr.groundSteering();
+            // std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
         };
 
         int frameCount = 0;        // to count frames
@@ -478,7 +480,8 @@ int32_t main(int32_t argc, char **argv) {
                 yClose,
                 yFar,
                 {t},   
-                {microseconds}   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
+                {microseconds},   // getTimeStamp(from cluon) here!!!!!!!!!!!!!!!!!!!!!!!!.------------------
+                gsrVal
             };
 
             // put the cone data into the shared memory to be extracted by the steering calculator microservice

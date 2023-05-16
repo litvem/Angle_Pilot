@@ -83,7 +83,9 @@ const _Float32 INF_SLOPE = 0.0f;
 // The slope for NO_CONE_POS
 const line_t NO_CONE_LINE = {pos_api::NO_CONE_POS.posX, pos_api::NO_CONE_POS.posY};
 
+// Boolean representing whether we're in test mode or not
 bool test;
+// Boolean representing whether we're in verbose test mode or not
 bool verbose;
 
 /**
@@ -265,6 +267,20 @@ int32_t main(int32_t argc, char **argv)
 
         handleExit(SIGTERM);
         return 1;
+    }
+
+    // State which mode we're running
+    if (verbose)
+    {
+        std::cout << "Running in verbose test mode" << std::endl;
+    }
+    else if (test)
+    {
+        std::cout << "Running in quiet test mode" << std::endl;
+    }
+    else
+    {
+        std::cout << "Running in normal mode" << std::endl;
     }
 
     // Used to check the timestamp of the last iteration.

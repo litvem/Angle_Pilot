@@ -1,10 +1,10 @@
 version: '3'
 
 services:
-  consumer:
+  angle-calculator:
     build:
       context: .
-      dockerfile: ./consumer.Dockerfile
+      dockerfile: ./angle-calculator.dockerfile
     ports:
       - target: 8001
     deploy:
@@ -12,30 +12,26 @@ services:
       placement:
         constraints:
           - node.role == worker
-      depends_on:
-        - opendlv-video-h264-decoder
     environment:
       - DISPLAY=:1
       - LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
 
-  producer:
+  cone-detector:
     build:
       context: .
-      dockerfile: ./producer.Dockerfile
+      dockerfile: ./cone-detector.dockerfile
     deploy:
       replicas: 1
       placement:
         constraints:
           - node.role == worker
-      depends_on:
-        - opendlv-video-h264-decoder
 
   OpenDLV-Vehicle-View:
     build:
       context: .
-      dockerfile: ./OpenDLV-Vehicle-View.Dockerfile
+      dockerfile: ./OpenDLV-Vehicle-View.dockerfile
     ports:
       - target: 80
         published: 8080
@@ -55,7 +51,7 @@ services:
   opendlv-video-h264-decoder:
     build:
       context: .
-      dockerfile: ./opendlv-video-h264-decoder.Dockerfile
+      dockerfile: ./opendlv-video-h264-decoder.dockerfile
     ports:
       - target: 8080
         published: 8080

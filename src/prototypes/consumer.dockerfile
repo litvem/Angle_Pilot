@@ -23,16 +23,16 @@ RUN apt-get update -y && \
     apt-get install -y build-essential cmake
 
 # Copy working directory
-ADD ./src /opt/sources
+ADD .. /opt/sources
 WORKDIR /opt/sources
 
 # Build the application
-RUN cd angle-calculator && \
+RUN cd prototypes && \
     bash build.sh
 
 # Copy the final executable
-RUN cd angle-calculator/build && \
-    cp angle-calculator /
+RUN cd prototypes/build && \
+    cp consumer /
 
 # Clean up
 RUN cd / && \
@@ -43,6 +43,5 @@ RUN cd / && \
 FROM scratch
 LABEL Author="Bao Quan Lindgren <guslindgba@student.gu.se>"
 
-WORKDIR /usr/bin
-COPY --from=builder /angle-calculator .
-ENTRYPOINT [ "/usr/bin/angle-calculator" ]
+COPY --from=builder /consumer /
+ENTRYPOINT [ "/consumer" ]

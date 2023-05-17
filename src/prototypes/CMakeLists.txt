@@ -13,36 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Build stage
-FROM ubuntu:22.04 as builder
-LABEL Author="Bao Quan Lindgren <guslindgba@student.gu.se>"
+cmake_minimum_required(VERSION 3.2)
 
-# Install dependencies
-RUN apt-get update -y && \
-    apt-get upgrade -y && \
-    apt-get install -y build-essential cmake
+project(api_example)
 
-# Copy working directory
-ADD ./src /opt/sources
-WORKDIR /opt/sources
+# Using C++14
+set(CMAKE_CXX_STANDARD 14)
 
-# Build the application
-RUN cd angle-calculator && \
-    bash build.sh
+# Enable pthreads and link librt and make it statically linked
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -pthread -lrt")
 
-# Copy the final executable
-RUN cd angle-calculator/build && \
-    cp angle-calculator /
-
-# Clean up
-RUN cd / && \
-    rm -rf /opt/sources && \
-    apt-get remove -y build-essential cmake
-
-# Deploy stage
-FROM scratch
-LABEL Author="Bao Quan Lindgren <guslindgba@student.gu.se>"
-
-WORKDIR /usr/bin
-COPY --from=builder /angle-calculator .
-ENTRYPOINT [ "/usr/bin/angle-calculator" ]
+# Add the 2 executables
+add_executable(producer ${CMAKE_CURRENT_SOURCE_DIR}/producer.cpp ${CMAKE_CURRENT_SOURCE_DIR}../api/position.cpp)
+add_executable(consumer ${CMAKE_CURRENT_SOURCE_DIR}/consumer.cpp ${CMAKE_CURRENT_SOURCE_DIR}../api/position.cpp)

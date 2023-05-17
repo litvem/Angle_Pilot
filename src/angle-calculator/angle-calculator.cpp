@@ -321,11 +321,6 @@ int32_t main(int32_t argc, char **argv)
             ang_vld::registerSteering(gsrVal, outputVal);
         }
 
-        // std::clog << "bClose @ (" << d.bClose.posX << ", " << d.bClose.posY << ")" << std::endl;
-        // std::clog << "bFar @ (" << d.bFar.posX << ", " << d.bFar.posY << ")" << std::endl;
-        // std::clog << "yClose @ (" << d.yClose.posX << ", " << d.yClose.posY << ")" << std::endl;
-        // std::clog << "yFar @ (" << d.yFar.posX << ", " << d.yFar.posY << ")" << std::endl;
-
         std::cout << "group_13;" << d.vidTimestamp.micros << ";" << outputVal << std::endl;
 
         if (verbose)
@@ -336,60 +331,6 @@ int32_t main(int32_t argc, char **argv)
 
     return 0;
 }
-
-
-/*
-int32_t main(int32_t argc, char **argv)
-{
-    origin = {5, 0};
-    while (true)
-    {
-        int16_t y1x, y1y, y2x, y2y, b1x, b1y, b2x, b2y;
-        std::string input;
-        std::cout << "yellow cone 1 x coordinate: ";
-        std::cin >> input;
-        y1x = stoi(input);
-        std::cout << "yellow cone 1 y coordinate: ";
-        std::cin >> input;
-        y1y = stoi(input);
-        std::cout << "yellow cone 2 x coordinate: ";
-        std::cin >> input;
-        y2x = stoi(input);
-        std::cout << "yellow cone 2 y coordinate: ";
-        std::cin >> input;
-        y2y = stoi(input);
-        std::cout << "blue cone 1 x coordinate: ";
-        std::cin >> input;
-        b1x = stoi(input);
-        std::cout << "blue cone 1 y coordinate: ";
-        std::cin >> input;
-        b1y = stoi(input);
-        std::cout << "blue cone 2 x coordinate: ";
-        std::cin >> input;
-        b2x = stoi(input);
-        std::cout << "blue cone 2 y coordinate: ";
-        std::cin >> input;
-        b2y = stoi(input);
-
-        _Float32 val = calculateSteering({
-            {b1x, b1y},
-            {b2x, b2y},
-            {y1x, y1y},
-            {y2x, y2y},
-            {0, 0},
-            {0, 0}
-        });
-
-        std::cout << val << std::endl;
-    }
-    while (true)
-    {
-        std::string in;
-        std::cin >> in;
-        std::cout << "arctan(" << in << ") = " << atan(stoi(in)) * (180 / M_PI) << " deg" << std::endl;
-    }
-}
- */
 
 void handleExit(int sig)
 {
@@ -421,8 +362,6 @@ line_t getLineFromCones(const pos_api::cone_t close, const pos_api::cone_t far)
     _Float32 coeff = (_Float32) (far.posY - close.posY) / (_Float32) (far.posX - close.posX);
     // y1 - ax1
     _Float32 constant = far.posY - (coeff * far.posX);
-
-    // std::cout << "y = " << coeff << "x + " << constant << std::endl;
 
     return {coeff, constant};
 }
@@ -475,11 +414,9 @@ _Float32 getAngle(const point_t origin, const point_t p) {
     // Positive values -> counterclockwise rotation
     _Float32 angle = atan((origin.y - p.y) / (origin.x - p.x)) * (180 / M_PI);
 
-    // Shift 0 degrees by 90 degrees clockwise and
-    // Subtract the angle by 180, yielding angles between
-    // -180 and 180 degrees.
-    // 0 degrees will point straight up while +/-180
-    // degrees will point straight down
+    // Convert negative angles to their corresponding positive
+    // angle and shift by 90 degrees, so the positive y-axis
+    // becomes the line of refernece
     angle = fmod(angle + 180.0f, 180.0f) - 90.0f;
 
     // Return the angle with a bias, if there is one
@@ -557,14 +494,10 @@ _Float32 calculateSteering(const pos_api::data_t data)
 
     // The intersect between the two lines, if there is one
     point_t intersect = getIntersect(bLine, yLine);
-    // std::clog << "intersect @ (" << intersect.x << ", " << intersect.y << ")" << std::endl;
 
     // The angle between a horizontal line and
     // the line between origin and intersect
     _Float32 angle = getAngle(origin, intersect);
-
-    // std::clog << "origin @ (" << origin.x << ", " << origin.y << ")" << std::endl;
-    // std::clog << angle << std::endl;
 
     // A check for whether the angle is on the right side
     bool right = angle < 0;

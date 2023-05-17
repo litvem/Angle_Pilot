@@ -1,37 +1,8 @@
 version: '3'
 
 services:
-  angle-calculator:
-    image: baoq/fisherman
-    command: ["--width=640", "--height=480"]
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == worker
-    environment:
-      - DISPLAY=:1
-      - LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-
-  cone-detector:
-    image: einerr/daimstruten
-    command: ["--cid=253", "--name=img", "--width=640", "--height=480", "--verbose"]
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == worker
-    environment:
-      - DISPLAY=:1
-    volumes:
-      - /tmp:/tmp
-    ipc: host
-    network_mode: host
-
   OpenDLV-Vehicle-View:
-    image: chrberger/opendlv-vehicle-view
+    image: chrberger/opendlv-vehicle-view:latest
     command: ["--init", "-i", "--net=host"]
     volumes:
       - $PWD:/opt/vehicle-view/recordings
@@ -62,4 +33,33 @@ services:
       placement:
         constraints:
           - node.role == worker
+
+  cone-detector:
+    image: einerr/daimstruten:latest
+    command: ["--cid=253", "--name=img", "--width=640", "--height=480", "--verbose"]
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
+    environment:
+      - DISPLAY=:1
+    volumes:
+      - /tmp:/tmp
+    ipc: host
+    network_mode: host
+
+  angle-calculator:
+    image: baoq/fisherman:latest
+    command: ["--width=640", "--height=480"]
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == worker
+    environment:
+      - DISPLAY=:1
+      - LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
 

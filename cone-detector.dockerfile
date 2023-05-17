@@ -31,13 +31,13 @@ RUN apt-get update -y && \
         libopencv-dev
 
 # Include this source tree and compile the sources
-ADD . /opt/sources
+ADD ./src /opt/sources
 WORKDIR /opt/sources
-RUN mkdir build && \
+RUN cd cone-detection && \
+    mkdir build && \
     cd build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp .. && \
     make && make install
-
 
 # Second stage for packaging the software into a software bundle:
 FROM ubuntu:18.04

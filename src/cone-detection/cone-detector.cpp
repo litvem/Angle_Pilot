@@ -63,13 +63,11 @@
 /* Default setting is that the y value is 0 at the top left corner of the image, this value is to set y as 0 in the bottom left corner */
 #define Y_TOTAL 110
 
-//using namespace cv;
+// Namespaces
 using cv::Mat;
-//using namespace std;
 using std::cout;
 using std::size_t;
 using std::endl;
-//using std::endl;
 
 // Vartiable declaration
 int hiThresh = 100;        // for Canny method 
@@ -128,6 +126,7 @@ void drawPath(std::vector<std::vector<cv::Point>>& contours, std::vector<cv::Poi
 */
 void fillConePositions(pos_api::cone_t& coneClose, pos_api::cone_t& coneFar, std::vector<cv::Point2f> centroids, int contoursSize); 
 
+// main function
 int32_t main(int32_t argc, char **argv) {
 
     int32_t retCode{1};
@@ -355,7 +354,6 @@ int32_t main(int32_t argc, char **argv) {
 
             // put the cone data into the shared memory to be extracted by the steering calculator microservice
             pos_api::put(coneData);
-            cout << "cornetto" << endl;
     //-------------------------------------------------^-----------------------------------------------------
 
             // If you want to access the latest received ground steering, don't forget to lock the mutex:
@@ -490,7 +488,3 @@ void fillConePositions(pos_api::cone_t& coneClose, pos_api::cone_t& coneFar, std
         std::memcpy(&coneFar, &pos_api::NO_CONE_POS, sizeof(pos_api::cone_t));
     }
 }
-
-
-
-

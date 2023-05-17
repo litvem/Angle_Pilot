@@ -2,11 +2,8 @@ version: '3'
 
 services:
   angle-calculator:
-    build:
-      context: .
-      dockerfile: ./angle-calculator.dockerfile
-    ports:
-      - target: 8001
+    image: baoq/fisherman
+    command: ["--width=640", "--height=480"]
     deploy:
       replicas: 1
       placement:
@@ -19,19 +16,26 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
 
   cone-detector:
-    build:
-      context: .
-      dockerfile: ./cone-detector.dockerfile
+    image: einerr/daimstruten
+    command: ["--cid=253", "--name=img", "--width=640", "--height=480", "--verbose"]
     deploy:
       replicas: 1
       placement:
         constraints:
           - node.role == worker
+    environment:
+      - DISPLAY=:1
+    volumes:
+      - /tmp:/tmp
+    ipc: host
+    network_mode: host
 
   OpenDLV-Vehicle-View:
-    build:
-      context: .
-      dockerfile: ./OpenDLV-Vehicle-View.dockerfile
+    image: chrberger/opendlv-vehicle-view
+    command: ["--init", "-i", "--net=host"]
+    volumes:
+      - $PWD:/opt/vehicle-view/recordings
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - target: 80
         published: 8080
@@ -49,18 +53,13 @@ services:
       - UDP_PORT_OUT=8081
 
   opendlv-video-h264-decoder:
-    build:
-      context: .
-      dockerfile: ./opendlv-video-h264-decoder.dockerfile
-    ports:
-      - target: 8080
-        published: 8080
-        protocol: udp
-      - target: 8081
-        published: 8081
-        protocol: udp
+    image: h264decoder:v0.0.5
+    command: >
+      sh -c "xhost + && echo 'Avkodar för Daimstruten...' &&
+      docker run --rm -ti --net=host -e DISPLAY=$DISPLAY -v /tmp:/tmp --ipc=host"
     deploy:
       replicas: 1
       placement:
         constraints:
           - node.role == worker
+

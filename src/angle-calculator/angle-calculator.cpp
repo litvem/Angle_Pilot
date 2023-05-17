@@ -9,6 +9,9 @@
 // Declares a set of function to compute common mathematical operations. 
 #include <math.h>
 
+// The testing functions used for the angle calculator
+#include "angle-validator.hpp"
+
 // The maximum absolute steering value
 #define MAX_ABS_STEERING_VAL 0.290888f
 
@@ -79,6 +82,11 @@ const _Float32 INF_SLOPE = 0.0f;
 
 // The slope for NO_CONE_POS
 const line_t NO_CONE_LINE = {pos_api::NO_CONE_POS.posX, pos_api::NO_CONE_POS.posY};
+
+// Boolean representing whether we're in test mode or not
+bool test;
+// Boolean representing whether we're in verbose test mode or not
+bool verbose;
 
 /**
  * Exit handler that cleans up after the process
@@ -178,7 +186,7 @@ int32_t main(int32_t argc, char **argv)
         std::cerr << "Usage:   " << argv[0] << " --width=<width of frame> --height=<height of frame>"
                   << "--z=<threshold for non-zero values> --m=<threshold for max value>"
                   << "--y=<origin y value offset> --l=<endpoint offset for default lines>"
-                  << "--b=<angle calculation offset>" << std::endl;
+                  << "--b=<angle calculation offset> [--test] [--verbose]" << std::endl;
         std::cerr << "         --width:  width of the frame (int)" << std::endl;
         std::cerr << "         --height: height of the frame (int)" << std::endl;
         std::cerr << "         --z: angle threshold for the algorithm to output non-zero values (float)" << std::endl;
@@ -186,6 +194,8 @@ int32_t main(int32_t argc, char **argv)
         std::cerr << "         --y: fraction to offset the origin's y value (float)" << std::endl;
         std::cerr << "         --l: number of partitions to create from the frame to offset the default lines' ending point to (int)" << std::endl;
         std::cerr << "         --b: angle to offset the angle calculation by (float)" << std::endl;
+        std::cerr << "         --test: whether or not to perform an accuracy test and print the results unot exiting the programme" << std::endl;
+        std::cerr << "         --verbose: whether or not to perform an accuracy test and for each frame" << std::endl;
         std::cerr << "Example: " << argv[0] << " --width=640 --height=480 --z=10 --m=70 --y=0.2 --l=3 --b=0" << std::endl;
         return 1;
     }
@@ -208,13 +218,16 @@ int32_t main(int32_t argc, char **argv)
         defaultLineOffset = std::stof(cmdargs["l"]);
         angleBias = std::stof(cmdargs["b"]);
     }
+
+    test = cmdargs.count("test");
+    verbose = cmdargs.count("verbose");
     origin = {(_Float32) width / 2.0f, height * originYOffset};
 
     // Get the default right edge between the top center
     // and bottom right corner
     rightDefault = getLineFromCones(
         {(uint16_t) (width - 1), 0},
-        {(uint16_t) ((width / defaultLineOffset) * defaultLineOffset - 1.0f), height}
+        {(uint16_t) ((width / defaultLineOffset) * (defaultLineOffset - 1.0f)), height}
     );
 
     // Get the default right edge between the top center
@@ -256,6 +269,20 @@ int32_t main(int32_t argc, char **argv)
         return 1;
     }
 
+    // State which mode we're running
+    if (verbose)
+    {
+        std::cout << "Running in verbose test mode" << std::endl;
+    }
+    else if (test)
+    {
+        std::cout << "Running in quiet test mode" << std::endl;
+    }
+    else
+    {
+        std::cout << "Running in normal mode" << std::endl;
+    }
+
     // Used to check the timestamp of the last iteration.
     // The wait function of SharedMemory seems to be inconsistent
     int64_t lastTs = INT64_MIN;
@@ -270,6 +297,12 @@ int32_t main(int32_t argc, char **argv)
         lastTs = d.vidTimestamp.micros;
 
         _Float32 outputVal = calculateSteering(d);
+        _Float32 gsrVal = d.gsr;
+
+        if (test || verbose)
+        {
+            ang_vld::registerSteering(gsrVal, outputVal);
+        }
 
         // std::clog << "bClose @ (" << d.bClose.posX << ", " << d.bClose.posY << ")" << std::endl;
         // std::clog << "bFar @ (" << d.bFar.posX << ", " << d.bFar.posY << ")" << std::endl;
@@ -277,6 +310,11 @@ int32_t main(int32_t argc, char **argv)
         // std::clog << "yFar @ (" << d.yFar.posX << ", " << d.yFar.posY << ")" << std::endl;
 
         std::cout << "group_13;" << d.vidTimestamp.micros << ";" << outputVal << std::endl;
+
+        if (verbose)
+        {
+            ang_vld::printResult();
+        }
     }
 
     return 0;
@@ -338,9 +376,14 @@ int32_t main(int32_t argc, char **argv)
 
 void handleExit(int sig)
 {
-    std::clog << std::endl << "Cleaning up..." << std::endl;
+    std::cout << std::endl;
+    if (test && !verbose)
+    {
+        ang_vld::printResult();
+    }
+    std::cout << "Cleaning up..." << std::endl;
     pos_api::clear();
-    std::clog << "Exiting programme..." << std::endl;
+    std::cout << "Exiting programme..." << std::endl;
 }
 
 line_t getLineFromCones(const pos_api::cone_t close, const pos_api::cone_t far)

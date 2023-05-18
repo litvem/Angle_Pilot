@@ -22,7 +22,7 @@
 #include <cstdint>
 
 // Include cluon to create a wrapper for the shared memory
-#include "../cluon-complete-v0.0.127.hpp"
+#include "../cone-detection/cluon-complete-v0.0.127.hpp"
 
 /*
  * The API used to transfer cone data between

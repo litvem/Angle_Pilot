@@ -1,5 +1,6 @@
+
 # Copyright (C) 2020  Christian Berger
-#
+# Copyright (C) 2023  Robert Einer, Emma Litvin, Ossian Ålund, Bao Quan Lindgren, Khaled Adel Saleh Mohammed Al-Baadani
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -13,9 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 # First stage for building the software:
 FROM ubuntu:18.04 as builder
-MAINTAINER Christian Berger "christian.berger@gu.se"
+LABEL Maintainer="Robert Einer <guseinero@student.gu.se>"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -31,17 +33,17 @@ RUN apt-get update -y && \
         libopencv-dev
 
 # Include this source tree and compile the sources
-ADD . /opt/sources
+ADD ./src /opt/sources
 WORKDIR /opt/sources
-RUN mkdir build && \
+RUN cd cone-detection && \
+    mkdir build && \
     cd build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp .. && \
     make && make install
 
-
 # Second stage for packaging the software into a software bundle:
 FROM ubuntu:18.04
-MAINTAINER Christian Berger "christian.berger@gu.se"
+LABEL Maintainer="Robert Einer <guseinero@student.gu.se>"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -55,6 +57,6 @@ RUN apt-get install -y --no-install-recommends \
         libopencv-imgproc3.2 
 
 WORKDIR /usr/bin
-COPY --from=builder /tmp/bin/template-opencv .
+COPY --from=builder /tmp/bin/cone-detector .
 # This is the entrypoint when starting the Docker container; hence, this Docker image is automatically starting our software on its creation
-ENTRYPOINT ["/usr/bin/template-opencv"]
+ENTRYPOINT ["/usr/bin/cone-detector"]

@@ -18,7 +18,7 @@
 
 # First stage for building the software:
 FROM ubuntu:18.04 as builder
-MAINTAINER Christian Berger "christian.berger@gu.se"
+LABEL Author="Robert Einer <guseinero@student.gu.se>"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -44,7 +44,7 @@ RUN cd cone-detection && \
 
 # Second stage for packaging the software into a software bundle:
 FROM ubuntu:18.04
-MAINTAINER Christian Berger "christian.berger@gu.se"
+LABEL Author="Robert Einer <guseinero@student.gu.se>"
 
 ENV DEBIAN_FRONTEND noninteractive
 

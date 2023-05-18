@@ -104,7 +104,7 @@ release:
     - docker buildx ls
     - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
     - docker buildx build --platform=${BUILDX_PLATFORM} -t "$CI_REGISTRY_IMAGE/cone-detector":"$CI_COMMIT_TAG" -f cone-detector.dockerfile --push .
-    - docker buildx build --platform=${BUILDX_PLATFORM} -t "$CI_REGISTRY_IMAGE/angle-calculator":"$CI_COMMIT_TAG" -f angle-caluclator.dockerfile --push .
+    - docker buildx build --platform=${BUILDX_PLATFORM} -t "$CI_REGISTRY_IMAGE/angle-calculator":"$CI_COMMIT_TAG" -f angle-calculator.dockerfile --push .
   rules:
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
   release:

@@ -16,12 +16,26 @@
 ### <ins>Setup steps</ins>
 1. Open terminal (MacOS) or Git Bash (on Windows) 
 2. Navigate to desired folder to store project files ([introductions on how to navigate between directories](https://ubuntu.com/tutorials/command-line-for-beginners#1-overview))
-3. Type in ``git clone git@git.chalmers.se:courses/dit638/students/2023-group-13.git`` and hit ENTER.
+3. Type in `git clone git@git.chalmers.se:courses/dit638/students/2023-group-13.git` and hit ENTER.
+
+## Getting started
+### <ins>Prerequisites</ins>
+- Your computer must run Linux on either x86_64 or armv7 architecture 
+- Install **Docker** on your computer (follow [instructions](https://docs.docker.com/engine/install/ubuntu/))
+- Install **Docker Compose standalone** (follow [instructions](https://docs.docker.com/compose/install/other/#install-compose-standalone))
+- Verify that **Docker** and **Docker Compose** are installed properly by running `docker --version` and `docker-compose --version`
+
+### <ins>Setup steps</ins>
+1. Open terminal
+2. Type in `docker login registry.git.chalmers.se` and hit ENTER
+3. Provide your credentials for Chalmers GitLab
+4. Type in `registry.git.chalmers.se/courses/dit638/students/2023-group-13/cone-detector:v1.0.0` and hit ENTER
+5. Type in `registry.git.chalmers.se/courses/dit638/students/2023-group-13/angle-calculator:v1.0.0` and hit ENTER
 
 ## Procedure for adding new feature
 1. Selected internal Product Owner will create a set of requirements / user stories, each with a set of acceptance criteria
 2. During group meetings the team will discuss and agree on the feasibility of the proposed feature and assign tasks to group members
-    - If the feature is deemed features is deemed feasible, proceed to step 3
+   - If the feature is deemed features is deemed feasible, proceed to step 3
    - Else, rescope the requirement / user story
 3. Assign tasks to group members all together during one meeting
 4. The selected internal Product Owner will create a Trello card and GitLab issue following the setup template

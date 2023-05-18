@@ -1,7 +1,6 @@
 
-# AnglePilot - A system that determines steering angles for miniature cars
+# Copyright (C) 2020  Christian Berger
 # Copyright (C) 2023  Robert Einer, Emma Litvin, Ossian Ålund, Bao Quan Lindgren, Khaled Adel Saleh Mohammed Al-Baadani
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -13,12 +12,12 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see https://www.gnu.org/licenses/. 
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # First stage for building the software:
 FROM ubuntu:18.04 as builder
-LABEL Author="Robert Einer <guseinero@student.gu.se>"
+LABEL Maintainer="Robert Einer <guseinero@student.gu.se>"
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -44,7 +43,7 @@ RUN cd cone-detection && \
 
 # Second stage for packaging the software into a software bundle:
 FROM ubuntu:18.04
-LABEL Author="Robert Einer <guseinero@student.gu.se>"
+LABEL Maintainer="Robert Einer <guseinero@student.gu.se>"
 
 ENV DEBIAN_FRONTEND noninteractive
 

@@ -188,13 +188,16 @@ int32_t main(int32_t argc, char **argv) {
         }
 
         opendlv::proxy::GroundSteeringRequest gsr;
+        _Float32 gsrVal;
         std::mutex gsrMutex;
-        auto onGroundSteeringRequest = [&gsr, &gsrMutex](cluon::data::Envelope &&env){
+        auto onGroundSteeringRequest = [&gsr, &gsrMutex, &gsrVal](cluon::data::Envelope &&env){
             // The envelope data structure provide further details, such as sampleTimePoint as shown in this microseconds case:
             // https://github.com/chrberger/libcluon/blob/master/libcluon/testsuites/TestEnvelopeConverter.cpp#L31-L40
             std::lock_guard<std::mutex> lck(gsrMutex);
             gsr = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(env));
+            gsrVal = gsr.groundSteering();
             //std::cout << "lambda: groundSteering = " << gsr.groundSteering() << std::endl;
+            
         };
 
 
@@ -343,14 +346,16 @@ int32_t main(int32_t argc, char **argv) {
             // Get the UNIX timestamp
             int64_t t = cluon::time::toMicroseconds(cluon::time::now());
 
-            // Fill the struct with all the cordinates of the two closest yellow and blue cones, the UNIX timestamp and the video frame timestamp
+            // Fill the struct with all the cordinates of the two closest yellow and blue cones, the UNIX timestamp, the video frame timestamp and
+            // the original ground steering values 
             pos_api::data_t coneData {
                 bClose,
                 bFar,
                 yClose,
                 yFar,
                 {t},   
-                {microseconds}   
+                {microseconds},
+                gsrVal   
             };
 
             // put the cone data into the shared memory to be extracted by the steering calculator microservice

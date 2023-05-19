@@ -28,7 +28,7 @@ WORKDIR /opt/sources
 
 # Build the application
 RUN cd angle-calculator && \
-    bash build.sh
+    sh build.sh
 
 # Copy the final executable
 RUN cd angle-calculator/build && \

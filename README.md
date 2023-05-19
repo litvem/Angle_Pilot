@@ -29,25 +29,25 @@
 2. Type in `docker login registry.git.chalmers.se` and hit ENTER
 3. Provide your credentials for Chalmers GitLab
 4. Go to [releases](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/releases)
-5. Download the `deploy.zip` asset from the latest release
-6. Unzip `deploy.zip` that you just downloaded
-7. In your teminal, navigate to `deploy/scripts/`
+5. Download the `artifacts.zip` asset from the latest release
+6. Unzip `artifacts.zip` that you just downloaded
+7. In your teminal, navigate to `artifacts/scripts/`
 8. Type in `sh setup.sh` and hit ENTER
 9. Type in `sh vehicle-view.sh` and hit ENTER
 10. Open a web browser and navigate to `localhost:8081`
 11. Click on the folder icon on the webpage
 12. Click on the play button for your desired recording file
-13. Open a new terminal in `deploy/scripts/`
+13. Open a new terminal in `artifacts/scripts/`
 14. Type in `sh decoder.sh` and hit ENTER
 15. Let the video play a few seconds before pausing
-16. Open a new terminal in `deploy/scripts/`
+16. Open a new terminal in `artifacts/scripts/`
 17. For normal execution
    1. Type in `sh cone-detector.sh` and hit ENTER
-   2. Open a new terminal in `deploy/scripts/`
+   2. Open a new terminal in `artifacts/scripts/`
    3. Type in `sh angle-calculator.sh` and hit ENTER
 18. For verbose test execution
    1. Type in `sh cone-detector-verbose.sh` and hit ENTER
-   2. Open a new terminal in `deploy/scripts/`
+   2. Open a new terminal in `artifacts/scripts/`
    3. Type in `sh angle-calculator-verbose.sh` and hit ENTER
 
 

@@ -131,7 +131,7 @@ release:
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
   release:
     tag_name: "$CI_COMMIT_TAG"
-    description: "AnglePilot:$CI_COMMIT_TAG"
+    description: "AnglePilot release based on $CI_COMMIT_SHORT_SHA"
     assets:
       links:
         - name: deploy.zip

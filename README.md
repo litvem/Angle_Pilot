@@ -37,17 +37,17 @@
 10. Open a web browser and navigate to `localhost:8081`
 11. Click on the folder icon on the webpage
 12. Click on the play button for your desired recording file
-13. Open a new terminal in `deploy/scripts`
+13. Open a new terminal in `deploy/scripts/`
 14. Type in `sh decoder.sh` and hit ENTER
 15. Let the video play a few seconds before pausing
-16. Open a new terminal in `deploy/scripts`
+16. Open a new terminal in `deploy/scripts/`
 17. For normal execution
    1. Type in `sh cone-detector.sh` and hit ENTER
-   2. Open a new terminal in `deploy/scripts`
+   2. Open a new terminal in `deploy/scripts/`
    3. Type in `sh angle-calculator.sh` and hit ENTER
 18. For verbose test execution
    1. Type in `sh cone-detector-verbose.sh` and hit ENTER
-   2. Open a new terminal in `deploy/scripts`
+   2. Open a new terminal in `deploy/scripts/`
    3. Type in `sh angle-calculator-verbose.sh` and hit ENTER
 
 

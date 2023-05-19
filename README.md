@@ -19,10 +19,9 @@
 
 ## Getting started
 ### <ins>Prerequisites</ins>
-- Your computer must run Linux on either x86_64 or armv7 architecture 
+- Your computer must run Linux on either x86_64 or arm/v7 architecture 
 - Install **Docker** on your computer (follow [instructions](https://docs.docker.com/engine/install/ubuntu/))
-- Install **Docker Compose standalone** (follow [instructions](https://docs.docker.com/compose/install/other/#install-compose-standalone))
-- Verify that **Docker** and **Docker Compose** are installed properly by running `docker --version` and `docker-compose --version`
+- Verify that **Docker** is installed properly by running `docker --version`
 
 ### <ins>Setup steps</ins>
 1. Open terminal

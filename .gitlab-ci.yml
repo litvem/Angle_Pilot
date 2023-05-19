@@ -93,9 +93,9 @@ prepare_deploy:
   stage: prepare_deploy
   image: ubuntu:22.04
   before_script:
-    - apt-get update -y
-    - apt-get upgrade -y
-    - apt-get install --no-recommends -y zip
+    - sudo apt-get update -y
+    - sudo apt-get upgrade -y
+    - sudo apt-get install --no-recommends -y zip
   script:
     - zip -r deploy.zip deploy/
   after_script:

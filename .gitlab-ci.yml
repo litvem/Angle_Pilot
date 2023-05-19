@@ -91,7 +91,6 @@ build:
 # This section prepares an artifact for deployment
 prepare_deploy:
   stage: prepare_deploy
-  image: alpine:latest
   script:
     - apk add --update zip
     - zip -r deploy.zip deploy/

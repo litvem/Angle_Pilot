@@ -91,9 +91,11 @@ build:
 # This section prepares an artifact for deployment
 prepare_deploy:
   stage: prepare_deploy
-  image: alpine:latest
+  image: ubuntu:22.04
   before_script:
-    - /sbin/apk add --update zip
+    - apt-get update -y
+    - apt-get upgrade -y
+    - apt-get install --no-recommends -y zip
   script:
     - zip -r deploy.zip deploy/
   after_script:

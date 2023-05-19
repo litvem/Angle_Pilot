@@ -96,12 +96,15 @@ prepare_deploy:
   script:
     - apk add --update zip
     - zip -r deploy.zip deploy/
+    - echo "ARTIFACT_ID=$CI_JOB_ID" >> job.env
   rules:
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
   artifacts:
     paths:
       - deploy.zip
     expire_in: never
+    reports:
+      dotenv: job.env
 
 # This section describes what shall be done to deploy artifacts from the project.
 release:
@@ -113,7 +116,7 @@ release:
   tags:
     - docker-build
   script:
-    - apk add --update docker zip
+    - apk add --update docker
     - mkdir -p $HOME/.docker/cli-plugins/
     - wget -O $HOME/.docker/cli-plugins/docker-buildx $BUILDX_URL
     - chmod a+x $HOME/.docker/cli-plugins/docker-buildx
@@ -132,4 +135,4 @@ release:
     assets:
       links:
         - name: deploy.zip
-          link: https://git.chalmers.se/courses/dit638/students/2023-group-13/-/jobs/$CI_JOB_ID/artifacts/download
+          link: https://git.chalmers.se/courses/dit638/students/2023-group-13/-/jobs/$ARTIFACT_ID/artifacts/download

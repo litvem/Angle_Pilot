@@ -1,0 +1,181 @@
+May 12 20:38:04 dit639 systemd[1]: Starting Docker Application Container Engine...
+May 12 20:38:04 dit639 dockerd[5429]: time="2023-05-12T20:38:04.597938185+02:00" level=info msg="Starting up"
+May 12 20:38:04 dit639 dockerd[5429]: time="2023-05-12T20:38:04.601546284+02:00" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+May 12 20:38:05 dit639 dockerd[5429]: time="2023-05-12T20:38:05.116377516+02:00" level=info msg="Loading containers: start."
+May 12 20:38:06 dit639 dockerd[5429]: time="2023-05-12T20:38:06.192136495+02:00" level=info msg="Loading containers: done."
+May 12 20:38:06 dit639 dockerd[5429]: time="2023-05-12T20:38:06.315254121+02:00" level=info msg="Docker daemon" commit=9dbdbd4 graphdriver=overlay2 version=23.0.6
+May 12 20:38:06 dit639 dockerd[5429]: time="2023-05-12T20:38:06.316535049+02:00" level=info msg="Daemon has completed initialization"
+May 12 20:38:06 dit639 systemd[1]: Started Docker Application Container Engine.
+May 12 20:38:06 dit639 dockerd[5429]: time="2023-05-12T20:38:06.472133980+02:00" level=info msg="API listen on /run/docker.sock"
+May 12 20:44:41 dit639 dockerd[5429]: time="2023-05-12T20:44:41.045886910+02:00" level=info msg="ignoring event" container=7ce7a82531d7361ff5bec5bfa06f20efea47b1765e18627215655596a49f1ce2 module=libcontainerd namespace=moby topic=/tasks/delete type="*events.TaskDelete"
+May 12 20:44:53 dit639 dockerd[5429]: time="2023-05-12T20:44:53.142553451+02:00" level=warning msg="Error while attempting to abort content ingest" digest="sha256:fc6cf906cbfa013e80938cdf0bb199fbdbb86d6e3e013783e5a766f50f5dbce0" error="context canceled" remote="docker.io/library/hello-world:latest"
+May 12 20:44:53 dit639 dockerd[5429]: time="2023-05-12T20:44:53.145363592+02:00" level=error msg="Not continuing with pull after error: Get \"https://registry-1.docker.io/v2/library/hello-world/manifests/sha256:fc6cf906cbfa013e80938cdf0bb199fbdbb86d6e3e013783e5a766f50f5dbce0\": read tcp 192.168.64.2:35084->34.194.164.123:443: read: connection reset by peer"
+May 12 20:44:53 dit639 dockerd[5429]: time="2023-05-12T20:44:53.145824256+02:00" level=error msg="Handler for POST /v1.42/images/create returned error: Get \"https://registry-1.docker.io/v2/library/hello-world/manifests/sha256:fc6cf906cbfa013e80938cdf0bb199fbdbb86d6e3e013783e5a766f50f5dbce0\": read tcp 192.168.64.2:35084->34.194.164.123:443: read: connection reset by peer"
+May 12 20:47:34 dit639 dockerd[5429]: time="2023-05-12T20:47:34.274396404+02:00" level=info msg="Processing signal 'terminated'"
+May 12 20:47:34 dit639 dockerd[5429]: time="2023-05-12T20:47:34.319866403+02:00" level=info msg="Daemon shutdown complete"
+May 12 20:47:34 dit639 systemd[1]: Stopping Docker Application Container Engine...
+May 12 20:47:34 dit639 systemd[1]: docker.service: Deactivated successfully.
+May 12 20:47:34 dit639 systemd[1]: Stopped Docker Application Container Engine.
+May 12 20:47:34 dit639 systemd[1]: docker.service: Consumed 3.021s CPU time.
+[0;1;39m-- Boot 4accf03e411f4998ba1bbd2153340ef2 --[0m
+May 12 21:02:19 dit639 systemd[1]: Starting Docker Application Container Engine...
+May 12 21:02:21 dit639 dockerd[693]: time="2023-05-12T21:02:21.692152507+02:00" level=info msg="Starting up"
+May 12 21:02:21 dit639 dockerd[693]: time="2023-05-12T21:02:21.698457276+02:00" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+May 12 21:02:22 dit639 dockerd[693]: time="2023-05-12T21:02:22.302924881+02:00" level=info msg="[graphdriver] using prior storage driver: overlay2"
+May 12 21:02:22 dit639 dockerd[693]: time="2023-05-12T21:02:22.362484415+02:00" level=info msg="Loading containers: start."
+May 12 21:02:24 dit639 dockerd[693]: time="2023-05-12T21:02:24.059749263+02:00" level=info msg="Default bridge (docker0) is assigned with an IP address 172.17.0.0/16. Daemon option --bip can be used to set a preferred IP address"
+May 12 21:02:24 dit639 dockerd[693]: time="2023-05-12T21:02:24.411411005+02:00" level=info msg="Loading containers: done."
+May 12 21:02:24 dit639 dockerd[693]: time="2023-05-12T21:02:24.882884067+02:00" level=info msg="Docker daemon" commit=9dbdbd4 graphdriver=overlay2 version=23.0.6
+May 12 21:02:24 dit639 dockerd[693]: time="2023-05-12T21:02:24.884807165+02:00" level=info msg="Daemon has completed initialization"
+May 12 21:02:25 dit639 systemd[1]: Started Docker Application Container Engine.
+May 12 21:02:25 dit639 dockerd[693]: time="2023-05-12T21:02:25.129282034+02:00" level=info msg="API listen on /run/docker.sock"
+May 12 21:06:41 dit639 dockerd[693]: time="2023-05-12T21:06:41.097712378+02:00" level=info msg="Processing signal 'terminated'"
+May 12 21:06:41 dit639 systemd[1]: Stopping Docker Application Container Engine...
+May 12 21:06:41 dit639 dockerd[693]: time="2023-05-12T21:06:41.370513718+02:00" level=info msg="stopping event stream following graceful shutdown" error="<nil>" module=libcontainerd namespace=moby
+May 12 21:06:41 dit639 dockerd[693]: time="2023-05-12T21:06:41.379531894+02:00" level=info msg="Daemon shutdown complete"
+May 12 21:06:41 dit639 systemd[1]: docker.service: Deactivated successfully.
+May 12 21:06:41 dit639 systemd[1]: Stopped Docker Application Container Engine.
+May 12 21:06:41 dit639 systemd[1]: docker.service: Consumed 2.733s CPU time.
+[0;1;39m-- Boot d533bf73ea0d41109048cf80f00cf0d3 --[0m
+May 12 21:15:40 dit639 systemd[1]: Starting Docker Application Container Engine...
+May 12 21:15:41 dit639 dockerd[683]: time="2023-05-12T21:15:41.005766220+02:00" level=info msg="Starting up"
+May 12 21:15:41 dit639 dockerd[683]: time="2023-05-12T21:15:41.013822893+02:00" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+May 12 21:15:41 dit639 dockerd[683]: time="2023-05-12T21:15:41.282461833+02:00" level=info msg="[graphdriver] using prior storage driver: overlay2"
+May 12 21:15:41 dit639 dockerd[683]: time="2023-05-12T21:15:41.311941892+02:00" level=info msg="Loading containers: start."
+May 12 21:15:42 dit639 dockerd[683]: time="2023-05-12T21:15:42.009526248+02:00" level=info msg="Default bridge (docker0) is assigned with an IP address 172.17.0.0/16. Daemon option --bip can be used to set a preferred IP address"
+May 12 21:15:42 dit639 dockerd[683]: time="2023-05-12T21:15:42.109205239+02:00" level=info msg="Loading containers: done."
+May 12 21:15:42 dit639 dockerd[683]: time="2023-05-12T21:15:42.283730207+02:00" level=info msg="Docker daemon" commit=9dbdbd4 graphdriver=overlay2 version=23.0.6
+May 12 21:15:42 dit639 dockerd[683]: time="2023-05-12T21:15:42.285122863+02:00" level=info msg="Daemon has completed initialization"
+May 12 21:15:42 dit639 systemd[1]: Started Docker Application Container Engine.
+May 12 21:15:42 dit639 dockerd[683]: time="2023-05-12T21:15:42.378669905+02:00" level=info msg="API listen on /run/docker.sock"
+May 13 01:39:14 dit639 systemd[1]: Stopping Docker Application Container Engine...
+May 13 01:39:14 dit639 dockerd[683]: time="2023-05-13T01:39:14.387540043+02:00" level=info msg="Processing signal 'terminated'"
+May 13 01:39:14 dit639 dockerd[683]: time="2023-05-13T01:39:14.407971430+02:00" level=info msg="stopping event stream following graceful shutdown" error="<nil>" module=libcontainerd namespace=moby
+May 13 01:39:14 dit639 dockerd[683]: time="2023-05-13T01:39:14.408584299+02:00" level=info msg="Daemon shutdown complete"
+May 13 01:39:14 dit639 systemd[1]: docker.service: Deactivated successfully.
+May 13 01:39:14 dit639 systemd[1]: Stopped Docker Application Container Engine.
+May 13 01:39:14 dit639 systemd[1]: docker.service: Consumed 1.857s CPU time.
+[0;1;39m-- Boot e6d4126651044995aaace9975d100f04 --[0m
+May 13 01:41:36 dit639 systemd[1]: Starting Docker Application Container Engine...
+May 13 01:41:37 dit639 dockerd[687]: time="2023-05-13T01:41:37.446598194+02:00" level=info msg="Starting up"
+May 13 01:41:37 dit639 dockerd[687]: time="2023-05-13T01:41:37.460686265+02:00" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+May 13 01:41:37 dit639 dockerd[687]: time="2023-05-13T01:41:37.868722994+02:00" level=info msg="[graphdriver] using prior storage driver: overlay2"
+May 13 01:41:37 dit639 dockerd[687]: time="2023-05-13T01:41:37.916379697+02:00" level=info msg="Loading containers: start."
+May 13 01:41:38 dit639 dockerd[687]: time="2023-05-13T01:41:38.738963144+02:00" level=info msg="Default bridge (docker0) is assigned with an IP address 172.17.0.0/16. Daemon option --bip can be used to set a preferred IP address"
+May 13 01:41:38 dit639 dockerd[687]: time="2023-05-13T01:41:38.868382020+02:00" level=info msg="Loading containers: done."
+May 13 01:41:39 dit639 dockerd[687]: time="2023-05-13T01:41:39.060748592+02:00" level=info msg="Docker daemon" commit=9dbdbd4 graphdriver=overlay2 version=23.0.6
+May 13 01:41:39 dit639 dockerd[687]: time="2023-05-13T01:41:39.061883091+02:00" level=info msg="Daemon has completed initialization"
+May 13 01:41:39 dit639 systemd[1]: Started Docker Application Container Engine.
+[0;1;39m-- Boot 3acf1a6ac16f4a9aacbb3c79818faa16 --[0m
+May 15 11:51:51 dit639 systemd[1]: Starting Docker Application Container Engine...
+May 15 11:52:31 dit639 dockerd[828]: time="2023-05-15T11:52:31.895174348+02:00" level=info msg="Starting up"
+May 15 11:52:32 dit639 dockerd[828]: time="2023-05-15T11:52:32.069002148+02:00" level=info msg="detected 127.0.0.53 nameserver, assuming systemd-resolved, so using resolv.conf: /run/systemd/resolve/resolv.conf"
+May 15 11:52:35 dit639 dockerd[828]: time="2023-05-15T11:52:35.410131148+02:00" level=info msg="[graphdriver] using prior storage driver: overlay2"
+May 15 11:52:37 dit639 dockerd[828]: time="2023-05-15T11:52:37.571245048+02:00" level=info msg="Loading containers: start."
+May 15 11:52:41 dit639 dockerd[828]: time="2023-05-15T11:52:41.987632648+02:00" level=info msg="Default bridge (docker0) is assigned with an IP address 172.17.0.0/16. Daemon option --bip can be used to set a preferred IP address"
+May 15 11:52:43 dit639 dockerd[828]: time="2023-05-15T11:52:43.357960948+02:00" level=info msg="Loading containers: done."
+May 15 11:52:44 dit639 dockerd[828]: time="2023-05-15T11:52:44.257899548+02:00" level=info msg="Docker daemon" commit=9dbdbd4 graphdriver=overlay2 version=23.0.6
+May 15 11:52:44 dit639 dockerd[828]: time="2023-05-15T11:52:44.267090848+02:00" level=info msg="Daemon has completed initialization"
+May 15 11:52:46 dit639 systemd[1]: Started Docker Application Container Engine.
+May 15 11:52:46 dit639 dockerd[828]: time="2023-05-15T11:52:46.587352748+02:00" level=info msg="API listen on /run/docker.sock"
+May 15 11:57:09 dit639 dockerd[828]: time="2023-05-15T11:57:09.299645044+02:00" level=warning msg="Published ports are discarded when using host network mode"
+May 15 11:57:09 dit639 dockerd[828]: time="2023-05-15T11:57:09.484237804+02:00" level=warning msg="Published ports are discarded when using host network mode"
+May 15 11:59:00 dit639 dockerd[828]: time="2023-05-15T11:59:00.055176384+02:00" level=warning msg="healthcheck failed" actualDuration=8.122786ms timeout=30s
+May 15 11:59:00 dit639 dockerd[828]: time="2023-05-15T11:59:00.415514883+02:00" level=warning msg="healthcheck failed" actualDuration=1.853924ms timeout=30s
+May 15 11:59:02 dit639 dockerd[828]: 2023/05/15 11:59:02 http2: server: error reading preface from client @: read unix /run/docker.sock->@: read: connection reset by peer
+May 15 11:59:05 dit639 dockerd[828]: time="2023-05-15T11:59:05.121525344+02:00" level=error msg="healthcheck failed fatally"
+May 15 11:59:05 dit639 dockerd[828]: time="2023-05-15T11:59:05.419466153+02:00" level=error msg="healthcheck failed fatally"
+May 15 11:59:07 dit639 dockerd[828]: time="2023-05-15T11:59:07.572067023+02:00" level=warning msg="healthcheck failed" actualDuration=2.208854ms timeout=30s
+May 15 11:59:12 dit639 dockerd[828]: time="2023-05-15T11:59:12.573305895+02:00" level=error msg="healthcheck failed fatally"
+May 15 12:01:37 dit639 dockerd[828]: time="2023-05-15T12:01:37.726248826+02:00" level=warning msg="healthcheck failed" actualDuration=2.9217ms timeout=30s
+May 15 12:01:42 dit639 dockerd[828]: time="2023-05-15T12:01:42.721021421+02:00" level=error msg="healthcheck failed fatally"
+May 15 12:02:35 dit639 dockerd[828]: time="2023-05-15T12:02:35.095955441+02:00" level=info msg="ignoring event" container=4e61c631b13f1d0eda38557607ea5db8e148096a0a81068b3f16df013c325d85 module=libcontainerd namespace=moby topic=/tasks/delete type="*events.TaskDelete"
+May 15 12:07:42 dit639 dockerd[828]: time="2023-05-15T12:07:42.961460876+02:00" level=info msg="ignoring event" container=c337accae63ed7cb4b40bafec9dffc05dd2014b91108fc1b4afba0229db159b3 module=libcontainerd namespace=moby topic=/tasks/delete type="*events.TaskDelete"
+May 15 22:28:50 dit639 dockerd[828]: time="2023-05-15T22:28:50.377423374+02:00" level=info msg="ignoring event" container=d68d058eee894cc8c2937ed85d2d4853ea832dc00e1cf8d119b81886f880f5ad module=libcontainerd namespace=moby topic=/tasks/delete type="*events.TaskDelete"
+May 15 22:28:50 dit639 dockerd[828]: time="2023-05-15T22:28:50.431366147+02:00" level=info msg="ignoring event" container=985078f856d8b5a497591007fb6b61acbec00dad716b06cad57d4e7047a47a14 module=libcontainerd namespace=moby topic=/tasks/delete type="*events.TaskDelete"
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.703751366+02:00" level=info msg="Listening for connections" addr="[::]:2377" module=node node.id=mld1zjamxfeyx9u4am9zhtvor proto=tcp
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.704574437+02:00" level=info msg="Listening for local connections" addr=/var/run/docker/swarm/control.sock module=node node.id=mld1zjamxfeyx9u4am9zhtvor proto=unix
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.765761332+02:00" level=info msg="38e33c51d73fea52 switched to configuration voters=()" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.766742091+02:00" level=info msg="38e33c51d73fea52 became follower at term 0" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.767341106+02:00" level=info msg="newRaft 38e33c51d73fea52 [peers: [], term: 0, commit: 0, applied: 0, lastindex: 0, lastterm: 0]" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.767453882+02:00" level=info msg="38e33c51d73fea52 became follower at term 1" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.768779359+02:00" level=info msg="38e33c51d73fea52 switched to configuration voters=(4099186408038591058)" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.777580639+02:00" level=info msg="38e33c51d73fea52 switched to configuration voters=(4099186408038591058)" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.778699824+02:00" level=info msg="38e33c51d73fea52 is starting a new election at term 1" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.803380774+02:00" level=info msg="38e33c51d73fea52 became candidate at term 2" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.803568702+02:00" level=info msg="38e33c51d73fea52 received MsgVoteResp from 38e33c51d73fea52 at term 2" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.803669802+02:00" level=info msg="38e33c51d73fea52 became leader at term 2" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.803825094+02:00" level=info msg="raft.node: 38e33c51d73fea52 elected leader 38e33c51d73fea52 at term 2" module=raft node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.809871527+02:00" level=info msg="Creating default ingress network" module=node node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.822510511+02:00" level=info msg="leadership changed from not yet part of a raft cluster to mld1zjamxfeyx9u4am9zhtvor" module=node node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.824558957+02:00" level=info msg="dispatcher starting" module=dispatcher node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:14 dit639 dockerd[828]: time="2023-05-15T22:45:14.928112397+02:00" level=info msg="cluster update event" module=dispatcher node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:15 dit639 dockerd[828]: time="2023-05-15T22:45:15.316911379+02:00" level=info msg="manager selected by agent for new session: { }" module=node/agent node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:15 dit639 dockerd[828]: time="2023-05-15T22:45:15.319519537+02:00" level=info msg="waiting 0s before registering session" module=node/agent node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:15 dit639 dockerd[828]: time="2023-05-15T22:45:15.411717521+02:00" level=info msg="worker mld1zjamxfeyx9u4am9zhtvor was successfully registered" method="(*Dispatcher).register"
+May 15 22:45:15 dit639 dockerd[828]: time="2023-05-15T22:45:15.423180962+02:00" level=info msg="initialized VXLAN UDP port to 4789 "
+May 15 22:45:15 dit639 dockerd[828]: time="2023-05-15T22:45:15.425595994+02:00" level=info msg="Initializing Libnetwork Agent Listen-Addr=0.0.0.0 Local-addr=192.168.64.2 Adv-addr=192.168.64.2 Data-addr= Remote-addr-list=[] MTU=1500"
+May 15 22:45:15 dit639 dockerd[828]: time="2023-05-15T22:45:15.427496720+02:00" level=info msg="New memberlist node - Node:dit639 will use memberlist nodeID:b4342d9601ba with config:&{NodeID:b4342d9601ba Hostname:dit639 BindAddr:0.0.0.0 AdvertiseAddr:192.168.64.2 BindPort:0 Keys:[[221 122 218 65 40 98 236 2 100 176 146 43 165 19 111 40] [148 175 0 217 1 12 163 30 230 188 72 133 186 184 199 68] [172 62 59 127 61 132 54 6 116 206 69 39 37 13 130 98]] PacketBufferSize:1400 reapEntryInterval:1800000000000 reapNetworkInterval:1825000000000 rejoinClusterDuration:10000000000 rejoinClusterInterval:60000000000 StatsPrintPeriod:5m0s HealthPrintPeriod:1m0s}"
+May 15 22:45:15 dit639 dockerd[828]: time="2023-05-15T22:45:15.464323834+02:00" level=info msg="Node b4342d9601ba/192.168.64.2, joined gossip cluster"
+May 15 22:45:15 dit639 dockerd[828]: time="2023-05-15T22:45:15.465945001+02:00" level=info msg="Node b4342d9601ba/192.168.64.2, added to nodes list"
+May 15 22:45:15 dit639 dockerd[828]: time="2023-05-15T22:45:15.511428981+02:00" level=info msg="cluster update event" module=dispatcher node.id=mld1zjamxfeyx9u4am9zhtvor
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.512338359+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.conn_reuse_mode" error="open /proc/sys/net/ipv4/vs/conn_reuse_mode: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.514693913+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.expire_nodest_conn" error="open /proc/sys/net/ipv4/vs/expire_nodest_conn: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.515690974+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.expire_quiescent_template" error="open /proc/sys/net/ipv4/vs/expire_quiescent_template: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.516518548+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.conn_reuse_mode" error="open /proc/sys/net/ipv4/vs/conn_reuse_mode: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.517307193+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.expire_nodest_conn" error="open /proc/sys/net/ipv4/vs/expire_nodest_conn: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.518202641+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.expire_quiescent_template" error="open /proc/sys/net/ipv4/vs/expire_quiescent_template: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.521865783+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.conn_reuse_mode" error="open /proc/sys/net/ipv4/vs/conn_reuse_mode: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.523547182+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.expire_nodest_conn" error="open /proc/sys/net/ipv4/vs/expire_nodest_conn: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.524302788+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.expire_quiescent_template" error="open /proc/sys/net/ipv4/vs/expire_quiescent_template: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.525146232+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.conn_reuse_mode" error="open /proc/sys/net/ipv4/vs/conn_reuse_mode: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.526087595+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.expire_nodest_conn" error="open /proc/sys/net/ipv4/vs/expire_nodest_conn: no such file or directory"
+May 15 22:45:17 dit639 dockerd[828]: time="2023-05-15T22:45:17.552628335+02:00" level=error msg="error reading the kernel parameter net.ipv4.vs.expire_quiescent_template" error="open /proc/sys/net/ipv4/vs/expire_quiescent_template: no such file or directory"
+May 15 22:50:15 dit639 dockerd[828]: time="2023-05-15T22:50:15.469123063+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 15 22:55:15 dit639 dockerd[828]: time="2023-05-15T22:55:15.668406738+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 00:14:39 dit639 dockerd[828]: time="2023-05-16T00:14:39.607550062+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 00:44:17 dit639 dockerd[828]: time="2023-05-16T00:44:17.107868529+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 02:49:19 dit639 dockerd[828]: time="2023-05-16T02:49:19.342712419+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 07:00:34 dit639 dockerd[828]: time="2023-05-16T07:00:34.025525399+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 08:37:46 dit639 dockerd[828]: time="2023-05-16T08:37:46.061373697+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 11:57:06 dit639 dockerd[828]: time="2023-05-16T11:57:06.696448343+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 12:02:06 dit639 dockerd[828]: time="2023-05-16T12:02:06.895936799+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 12:07:07 dit639 dockerd[828]: time="2023-05-16T12:07:07.096051001+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 12:12:07 dit639 dockerd[828]: time="2023-05-16T12:12:07.097640844+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:04:14 dit639 dockerd[828]: time="2023-05-16T13:04:14.850184534+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:09:15 dit639 dockerd[828]: time="2023-05-16T13:09:15.050085953+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:14:15 dit639 dockerd[828]: time="2023-05-16T13:14:15.250849335+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:19:15 dit639 dockerd[828]: time="2023-05-16T13:19:15.450629511+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:24:15 dit639 dockerd[828]: time="2023-05-16T13:24:15.650570187+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:29:15 dit639 dockerd[828]: time="2023-05-16T13:29:15.849897019+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:34:15 dit639 dockerd[828]: time="2023-05-16T13:34:15.850729941+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:39:16 dit639 dockerd[828]: time="2023-05-16T13:39:16.050621891+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:44:16 dit639 dockerd[828]: time="2023-05-16T13:44:16.249960047+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:49:16 dit639 dockerd[828]: time="2023-05-16T13:49:16.250491720+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 13:54:16 dit639 dockerd[828]: time="2023-05-16T13:54:16.450564043+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:02:03 dit639 dockerd[828]: time="2023-05-16T14:02:03.510960618+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:07:03 dit639 dockerd[828]: time="2023-05-16T14:07:03.711433705+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:12:03 dit639 dockerd[828]: time="2023-05-16T14:12:03.911111453+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:17:04 dit639 dockerd[828]: time="2023-05-16T14:17:04.111903519+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:22:04 dit639 dockerd[828]: time="2023-05-16T14:22:04.311619537+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:27:04 dit639 dockerd[828]: time="2023-05-16T14:27:04.316976050+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:32:04 dit639 dockerd[828]: time="2023-05-16T14:32:04.511826445+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:37:04 dit639 dockerd[828]: time="2023-05-16T14:37:04.711627896+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:42:04 dit639 dockerd[828]: time="2023-05-16T14:42:04.911110321+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:47:05 dit639 dockerd[828]: time="2023-05-16T14:47:05.111759485+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:52:05 dit639 dockerd[828]: time="2023-05-16T14:52:05.311164878+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 14:57:05 dit639 dockerd[828]: time="2023-05-16T14:57:05.311676960+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:02:05 dit639 dockerd[828]: time="2023-05-16T15:02:05.511044782+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:07:05 dit639 dockerd[828]: time="2023-05-16T15:07:05.512264165+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:12:05 dit639 dockerd[828]: time="2023-05-16T15:12:05.711220362+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:15:00 dit639 dockerd[828]: time="2023-05-16T15:15:00.926906789+02:00" level=error msg="error reallocating node " error="node  cannot be found" method="(*Allocator).doTaskAlloc" module=node node.id=mld1zjamxfeyx9u4am9zhtvor
+May 16 15:17:05 dit639 dockerd[828]: time="2023-05-16T15:17:05.911121349+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:22:05 dit639 dockerd[828]: time="2023-05-16T15:22:05.911793904+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:27:06 dit639 dockerd[828]: time="2023-05-16T15:27:06.111190602+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:32:06 dit639 dockerd[828]: time="2023-05-16T15:32:06.210543693+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:37:06 dit639 dockerd[828]: time="2023-05-16T15:37:06.311221589+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:42:06 dit639 dockerd[828]: time="2023-05-16T15:42:06.512299332+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:47:06 dit639 dockerd[828]: time="2023-05-16T15:47:06.711316922+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:52:06 dit639 dockerd[828]: time="2023-05-16T15:52:06.711903549+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 15:57:06 dit639 dockerd[828]: time="2023-05-16T15:57:06.913490672+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false netPeers:1 entries:2 Queue qLen:0 netMsg/s:0"
+May 16 16:02:07 dit639 dockerd[828]: time="2023-05-16T16:02:07.111855903+02:00" level=info msg="NetworkDB stats dit639(b4342d9601ba) - netID:bb3apxkpgvlp4o67ocsb0htx3 leaving:false ne

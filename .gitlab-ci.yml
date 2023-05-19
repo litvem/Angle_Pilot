@@ -91,14 +91,10 @@ build:
 # This section prepares an artifact for deployment
 prepare_deploy:
   stage: prepare_deploy
-  image: ubuntu:22.04
-  before_script:
-    - sudo apt-get update -y
-    - sudo apt-get upgrade -y
-    - sudo apt-get install --no-recommends -y zip
+  image: alpine:latest
   script:
+    - apk add --update zip
     - zip -r deploy.zip deploy/
-  after_script:
     - echo "ARTIFACT_ID=$CI_JOB_ID" >> job.env
   rules:
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
@@ -118,7 +114,7 @@ release:
       artifacts: true
   tags:
     - docker-build
-  before_script:
+  script:
     - apk add --update docker zip
     - mkdir -p $HOME/.docker/cli-plugins/
     - wget -O $HOME/.docker/cli-plugins/docker-buildx $BUILDX_URL
@@ -128,7 +124,6 @@ release:
     - docker buildx inspect --bootstrap
     - docker buildx ls
     - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
-  script:
     - docker buildx build --platform=${BUILDX_PLATFORM} -t "$CI_REGISTRY_IMAGE/cone-detector":"$CI_COMMIT_TAG" -f cone-detector.dockerfile --push .
     - docker buildx build --platform=${BUILDX_PLATFORM} -t "$CI_REGISTRY_IMAGE/angle-calculator":"$CI_COMMIT_TAG" -f angle-calculator.dockerfile --push .
   rules:

@@ -91,6 +91,8 @@ build:
 # This section prepares an artifact for deployment
 prepare_deploy:
   stage: prepare_deploy
+  tags:
+    - docker-build
   script:
     - apk add --update zip
     - zip -r deploy.zip deploy/

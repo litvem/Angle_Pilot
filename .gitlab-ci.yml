@@ -135,4 +135,4 @@ release:
     assets:
       links:
         - name: deploy.zip
-          url: $CI_REPOSITORY_URL/-/jobs/$ARTIFACT_ID/artifacts/download
+          url: $CI_PROJECT_URL/-/jobs/$ARTIFACT_ID/artifacts/download

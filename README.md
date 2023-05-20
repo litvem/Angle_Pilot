@@ -2,7 +2,6 @@
 ## Group 13
 
 [![pipeline status](https://git.chalmers.se/courses/dit638/students/2023-group-13/badges/main/pipeline.svg)](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/commits/main)
-[![coverage report](https://git.chalmers.se/courses/dit638/students/2023-group-13/badges/main/coverage.svg)](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/commits/main)
 [![Latest Release](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/badges/release.svg)](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/releases)
 
 [Team Code of Conduct](./code-of-conduct.md)
@@ -16,12 +15,46 @@
 ### <ins>Setup steps</ins>
 1. Open terminal (MacOS) or Git Bash (on Windows) 
 2. Navigate to desired folder to store project files ([introductions on how to navigate between directories](https://ubuntu.com/tutorials/command-line-for-beginners#1-overview))
-3. Type in ``git clone git@git.chalmers.se:courses/dit638/students/2023-group-13.git`` and hit ENTER.
+3. Type in `git clone git@git.chalmers.se:courses/dit638/students/2023-group-13.git` and hit ENTER.
+
+## Getting started
+### <ins>Prerequisites</ins>
+- Your computer must run Linux on either x86_64 or arm/v7 architecture
+- Install **Zip** on your computer (check your OS package manager)
+- Install **Docker** on your computer (follow [instructions](https://docs.docker.com/engine/install/ubuntu/))
+- Verify that **Docker** is installed properly by running `docker --version`
+
+### <ins>Execution steps</ins>
+1. Open terminal
+2. Type in `docker login registry.git.chalmers.se` and hit ENTER
+3. Provide your credentials for Chalmers GitLab
+4. Go to [releases](https://git.chalmers.se/courses/dit638/students/2023-group-13/-/releases)
+5. Download the `artifacts.zip` asset from the latest release
+6. Unzip `artifacts.zip` that you just downloaded
+7. In your teminal, navigate to `artifacts/deploy/scripts/`
+8. Type in `sh setup.sh` and hit ENTER
+9. Type in `sh vehicle-view.sh` and hit ENTER
+10. Open a web browser and navigate to `localhost:8081` or your ``IP-address:8081`` (e.g., ``http://192.168.64.1:8081``)
+11. Click on the folder icon on the webpage
+12. Click on the play button for your desired recording file
+13. Open a new terminal in `artifacts/deploy/scripts/`
+14. Type in `sh decoder.sh` and hit ENTER
+15. Let the video play a few seconds before pausing
+16. Open a new terminal in `artifacts/deploy/scripts/`
+17. For normal execution
+   1. Type in `sh cone-detector.sh` and hit ENTER
+   2. Open a new terminal in `artifacts/deploy/scripts/`
+   3. Type in `sh angle-calculator.sh` and hit ENTER
+18. For verbose test execution
+   1. Type in `sh cone-detector-verbose.sh` and hit ENTER
+   2. Open a new terminal in `artifacts/deploy/scripts/`
+   3. Type in `sh angle-calculator-verbose.sh` and hit ENTER
+
 
 ## Procedure for adding new feature
 1. Selected internal Product Owner will create a set of requirements / user stories, each with a set of acceptance criteria
 2. During group meetings the team will discuss and agree on the feasibility of the proposed feature and assign tasks to group members
-    - If the feature is deemed features is deemed feasible, proceed to step 3
+   - If the feature is deemed features is deemed feasible, proceed to step 3
    - Else, rescope the requirement / user story
 3. Assign tasks to group members all together during one meeting
 4. The selected internal Product Owner will create a Trello card and GitLab issue following the setup template

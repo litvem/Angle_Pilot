@@ -33,6 +33,7 @@ services:
 stages:
   - build
 #  - generate-coverage
+  - prepare_deploy
   - deploy
 
 # This section describes what shall be done to build and test the project.
@@ -87,10 +88,29 @@ build:
 #        coverage_format: cobertura
 #        path: ${CI_PROJECT_DIR}/example/build/coverage.xml
 
-# This section describes what shall be done to deploy artefacts from the project.
+# This section prepares an artifact for deployment
+prepare_deploy:
+  stage: prepare_deploy
+  tags:
+    - docker-build
+  script:
+    - echo "ARTIFACT_ID=$CI_JOB_ID" >> job.env
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+  artifacts:
+    paths:
+      - deploy/
+    expire_in: never
+    reports:
+      dotenv: job.env
+
+# This section describes what shall be done to deploy artifacts from the project.
 release:
   stage: deploy
   image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: prepare_deploy
+      artifacts: true
   tags:
     - docker-build
   script:
@@ -109,4 +129,8 @@ release:
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
   release:
     tag_name: "$CI_COMMIT_TAG"
-    description: "Current release"
+    description: "AnglePilot release based on $CI_COMMIT_SHORT_SHA"
+    assets:
+      links:
+        - name: artifacts.zip
+          url: $CI_PROJECT_URL/-/jobs/$ARTIFACT_ID/artifacts/download

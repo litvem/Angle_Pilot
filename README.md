@@ -34,7 +34,7 @@
 7. In your teminal, navigate to `artifacts/deploy/scripts/`
 8. Type in `sh setup.sh` and hit ENTER
 9. Type in `sh vehicle-view.sh` and hit ENTER
-10. Open a web browser and navigate to `localhost:8081`
+10. Open a web browser and navigate to `localhost:8081` or your ``IP-address:8081`` (e.g., ``http://192.168.64.1:8081``)
 11. Click on the folder icon on the webpage
 12. Click on the play button for your desired recording file
 13. Open a new terminal in `artifacts/deploy/scripts/`

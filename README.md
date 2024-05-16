@@ -1,5 +1,4 @@
-# DIT639 Cyber Physical Systems and Systems of Systems
-## Group 13
+# AnglePilot
 
 [![pipeline status](https://github.com/litvem/Angle_Pilot/badges/main/pipeline.svg)](https://github.com/litvem/Angle_Pilot/commits/main)
 [![Latest Release](https://github.com/litvem/Angle_Pilot/badges/release.svg)](https://github.com/litvem/Angle_Pilot/releases)
